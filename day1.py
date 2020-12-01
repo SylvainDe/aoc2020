@@ -1,10 +1,27 @@
-def day1(file_path='day1_input.txt', target_sum=2020):
+import itertools
+
+def get_numbers(file_path='day1_input.txt'):
     with open(file_path) as f:
-        nbs = set(int(l) for l in f)
-    
+        return set(int(l) for l in f)
+
+# Note: various optimisations possible, in particular for day1_part2.
+# This would get more relevant with bigger inputs or if one wants all
+# solutions without assuming that there is only one.
+# For instance, one could consider looking for n1 < n2 < n3 which gives
+# an early exit condition for each loop level.
+
+def day1_part1(nbs, target_sum=2020):
     for n1 in nbs:
         n2 = target_sum - n1
         if n2 in nbs:
             return n1*n2
 
-print(day1())
+def day1_part2(nbs, target_sum=2020):
+    for n1, n2 in itertools.combinations(nbs, 2):
+        n3 = target_sum - n1 - n2
+        if n3 in nbs:
+            return n1 * n2 * n3
+
+nbs = get_numbers()
+print(day1_part1(nbs) == 73371)
+print(day1_part2(nbs) == 127642310)
