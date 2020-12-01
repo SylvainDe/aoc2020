@@ -22,6 +22,12 @@ def day1_part2(nbs, target_sum=2020):
         if n3 in nbs:
             return n1 * n2 * n3
 
+# Examples provided
+nbs = set((1721, 979, 366, 299, 675, 1456))
+assert day1_part1(nbs) == 514579
+assert day1_part2(nbs) == 241861950
+
+# Real problem
 nbs = get_numbers()
 print(day1_part1(nbs) == 73371)
 print(day1_part2(nbs) == 127642310)
