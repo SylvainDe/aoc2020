@@ -14,6 +14,11 @@ def get_passports(string):
     return [get_passport(s) for s in string.split("\n\n")]
 
 
+def get_passports_from_file(file_path="day4_input.txt"):
+    with open(file_path) as f:
+        return get_passports(f.read())
+
+
 def passport_is_valid1(passport):
     keys = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
     return all(key in passport for key in keys)
@@ -127,8 +132,6 @@ for p in passports_invalid:
 
 
 # Real problem
-file_path = "day4_input.txt"
-with open(file_path) as f:
-    passports = get_passports(f.read())
-    print(sum(passport_is_valid1(p) for p in passports) == 228)
-    print(sum(passport_is_valid2(p) for p in passports) == 175)
+passports = get_passports_from_file()
+print(sum(passport_is_valid1(p) for p in passports) == 228)
+print(sum(passport_is_valid2(p) for p in passports) == 175)
