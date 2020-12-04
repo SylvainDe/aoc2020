@@ -28,17 +28,22 @@ def line_is_valid_pwd_part_2(line):
     return sum(pwd[pos - 1] == letter for pos in (mini, maxi)) == 1
 
 
-# Examples provided
-assert line_is_valid_pwd_part_1("1-3 a: abcde")
-assert not line_is_valid_pwd_part_1("1-3 b: cdefg")
-assert line_is_valid_pwd_part_1("2-9 c: ccccccccc")
+def run_tests():
+    assert line_is_valid_pwd_part_1("1-3 a: abcde")
+    assert not line_is_valid_pwd_part_1("1-3 b: cdefg")
+    assert line_is_valid_pwd_part_1("2-9 c: ccccccccc")
 
-assert line_is_valid_pwd_part_2("1-3 a: abcde")
-assert not line_is_valid_pwd_part_2("1-3 b: cdefg")
-assert not line_is_valid_pwd_part_2("2-9 c: ccccccccc")
+    assert line_is_valid_pwd_part_2("1-3 a: abcde")
+    assert not line_is_valid_pwd_part_2("1-3 b: cdefg")
+    assert not line_is_valid_pwd_part_2("2-9 c: ccccccccc")
 
 
-# Real problem
-lines = get_lines_from_file()
-print(sum(line_is_valid_pwd_part_1(l) for l in lines) == 542)
-print(sum(line_is_valid_pwd_part_2(l) for l in lines) == 360)
+def get_solutions():
+    lines = get_lines_from_file()
+    print(sum(line_is_valid_pwd_part_1(l) for l in lines) == 542)
+    print(sum(line_is_valid_pwd_part_2(l) for l in lines) == 360)
+
+
+if __name__ == "__main__":
+    run_tests()
+    get_solutions()

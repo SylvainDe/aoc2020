@@ -19,26 +19,6 @@ def get_number_of_tree_for_slopes(area, slopes):
     return prod
 
 
-# Examples provided
-area = [
-    "..##.......",
-    "#...#...#..",
-    ".#....#..#.",
-    "..#.#...#.#",
-    ".#...##..#.",
-    "..#.##.....",
-    ".#.#.#....#",
-    ".#........#",
-    "#.##...#...",
-    "#...##....#",
-    ".#..#...#.#",
-]
-assert get_number_of_trees(area) == 7
-assert get_number_of_trees(area, 1, 1) == 2
-assert get_number_of_trees(area, 3, 1) == 7
-assert get_number_of_trees(area, 5, 1) == 3
-assert get_number_of_trees(area, 7, 1) == 4
-assert get_number_of_trees(area, 1, 2) == 2
 slopes = [
     (1, 1),
     (3, 1),
@@ -46,9 +26,37 @@ slopes = [
     (7, 1),
     (1, 2),
 ]
-assert get_number_of_tree_for_slopes(area, slopes) == 336
 
-# Real problem
-area = get_area()
-print(get_number_of_trees(area) == 178)
-print(get_number_of_tree_for_slopes(area, slopes) == 3492520200)
+
+def run_tests():
+    area = [
+        "..##.......",
+        "#...#...#..",
+        ".#....#..#.",
+        "..#.#...#.#",
+        ".#...##..#.",
+        "..#.##.....",
+        ".#.#.#....#",
+        ".#........#",
+        "#.##...#...",
+        "#...##....#",
+        ".#..#...#.#",
+    ]
+    assert get_number_of_trees(area) == 7
+    assert get_number_of_trees(area, 1, 1) == 2
+    assert get_number_of_trees(area, 3, 1) == 7
+    assert get_number_of_trees(area, 5, 1) == 3
+    assert get_number_of_trees(area, 7, 1) == 4
+    assert get_number_of_trees(area, 1, 2) == 2
+    assert get_number_of_tree_for_slopes(area, slopes) == 336
+
+
+def get_solutions():
+    area = get_area()
+    print(get_number_of_trees(area) == 178)
+    print(get_number_of_tree_for_slopes(area, slopes) == 3492520200)
+
+
+if __name__ == "__main__":
+    run_tests()
+    get_solutions()

@@ -64,8 +64,8 @@ def passport_is_valid2(passport):
         return False
 
 
-# Examples provided
-example1 = """ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
+def run_tests():
+    example1 = """ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
 byr:1937 iyr:2017 cid:147 hgt:183cm
 
 iyr:2013 ecl:amb cid:350 eyr:2023 pid:028048884
@@ -78,27 +78,27 @@ hgt:179cm
 
 hcl:#cfa07d eyr:2025 pid:166559648
 iyr:2011 ecl:brn hgt:59in"""
-passports = get_passports(example1)
-assert passport_is_valid1(passports[0])
-assert not passport_is_valid1(passports[1])
-assert passport_is_valid1(passports[2])
-assert not passport_is_valid1(passports[3])
-assert sum(passport_is_valid1(p) for p in passports) == 2
+    passports = get_passports(example1)
+    assert passport_is_valid1(passports[0])
+    assert not passport_is_valid1(passports[1])
+    assert passport_is_valid1(passports[2])
+    assert not passport_is_valid1(passports[3])
+    assert sum(passport_is_valid1(p) for p in passports) == 2
 
-assert not is_int_in_range(None, 1920, 2020)
-assert not is_int_in_range("", 1920, 2020)
-assert not is_int_in_range("1900", 1920, 2020)
-assert is_int_in_range("1930", 1920, 2020)
+    assert not is_int_in_range(None, 1920, 2020)
+    assert not is_int_in_range("", 1920, 2020)
+    assert not is_int_in_range("1900", 1920, 2020)
+    assert is_int_in_range("1930", 1920, 2020)
 
-assert not is_valid_height("")
-assert is_valid_height("160cm")
-assert not is_valid_height("195cm")
-assert is_valid_height("60in")
-assert not is_valid_height("80in")
-assert not is_valid_height("42")
-assert not is_valid_height("42ab")
+    assert not is_valid_height("")
+    assert is_valid_height("160cm")
+    assert not is_valid_height("195cm")
+    assert is_valid_height("60in")
+    assert not is_valid_height("80in")
+    assert not is_valid_height("42")
+    assert not is_valid_height("42ab")
 
-example2_invalid = """eyr:1972 cid:100
+    example2_invalid = """eyr:1972 cid:100
 hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
 
 iyr:2019
@@ -111,7 +111,7 @@ ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
 hgt:59cm ecl:zzz
 eyr:2038 hcl:74454a iyr:2023
 pid:3556412378 byr:2007"""
-example2_valid = """pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
+    example2_valid = """pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
 hcl:#623a2f
 
 eyr:2029 ecl:blu cid:129 byr:1989
@@ -123,15 +123,20 @@ pid:545766238 ecl:hzl
 eyr:2022
 
 iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719"""
-passports_invalid = get_passports(example2_invalid)
-passports_valid = get_passports(example2_valid)
-for p in passports_valid:
-    assert passport_is_valid2(p)
-for p in passports_invalid:
-    assert not passport_is_valid2(p)
+    passports_invalid = get_passports(example2_invalid)
+    passports_valid = get_passports(example2_valid)
+    for p in passports_valid:
+        assert passport_is_valid2(p)
+    for p in passports_invalid:
+        assert not passport_is_valid2(p)
 
 
-# Real problem
-passports = get_passports_from_file()
-print(sum(passport_is_valid1(p) for p in passports) == 228)
-print(sum(passport_is_valid2(p) for p in passports) == 175)
+def get_solutions():
+    passports = get_passports_from_file()
+    print(sum(passport_is_valid1(p) for p in passports) == 228)
+    print(sum(passport_is_valid2(p) for p in passports) == 175)
+
+
+if __name__ == "__main__":
+    run_tests()
+    get_solutions()
