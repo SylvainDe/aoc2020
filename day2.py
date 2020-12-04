@@ -12,25 +12,20 @@ def get_info_from_line(line):
     return (mini, maxi, letter, pwd)
 
 
+def get_lines_from_file(file_path="day2_input.txt"):
+    with open(file_path) as f:
+        return [l.strip() for l in f]
+
+
 def line_is_valid_pwd_part_1(line):
     mini, maxi, letter, pwd = get_info_from_line(line)
     count = pwd.count(letter)
     return mini <= count <= maxi
 
 
-def get_number_of_valid_pwd_part1(file_path="day2_input.txt"):
-    with open(file_path) as f:
-        return sum(line_is_valid_pwd_part_1(l.strip()) for l in f)
-
-
 def line_is_valid_pwd_part_2(line):
     mini, maxi, letter, pwd = get_info_from_line(line)
     return sum(pwd[pos - 1] == letter for pos in (mini, maxi)) == 1
-
-
-def get_number_of_valid_pwd_part2(file_path="day2_input.txt"):
-    with open(file_path) as f:
-        return sum(line_is_valid_pwd_part_2(l.strip()) for l in f)
 
 
 # Examples provided
@@ -44,5 +39,6 @@ assert not line_is_valid_pwd_part_2("2-9 c: ccccccccc")
 
 
 # Real problem
-print(get_number_of_valid_pwd_part1() == 542)
-print(get_number_of_valid_pwd_part2() == 360)
+lines = get_lines_from_file()
+print(sum(line_is_valid_pwd_part_1(l) for l in lines) == 542)
+print(sum(line_is_valid_pwd_part_2(l) for l in lines) == 360)
