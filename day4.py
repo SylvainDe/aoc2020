@@ -1,5 +1,6 @@
 import re
 
+
 def get_passport(string):
     data = dict()
     for chunk in string.split():
@@ -8,11 +9,13 @@ def get_passport(string):
         data[key] = value
     return data
 
+
 def get_passports(string):
     return [get_passport(s) for s in string.split("\n\n")]
 
+
 def passport_is_valid1(passport):
-    keys = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid']
+    keys = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
     return all(key in passport for key in keys)
 
 
@@ -27,31 +30,34 @@ def is_int_in_range(string, mini, maxi):
 
 
 def is_valid_height(string):
-    if string.endswith('cm'):
+    if string.endswith("cm"):
         return is_int_in_range(string[:-2], 150, 193)
-    elif string.endswith('in'):
+    elif string.endswith("in"):
         return is_int_in_range(string[:-2], 59, 76)
     else:
         return False
 
 
 HCL_RE = re.compile(r"^#[0-9a-f]{6}$")
-COLORS = set(['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'])
+COLORS = set(["amb", "blu", "brn", "gry", "grn", "hzl", "oth"])
 PID_RE = re.compile(r"^\d{9}$")
+
+
 def passport_is_valid2(passport):
     criteria = {
-        'byr': lambda s: is_int_in_range(s, 1920, 2002),
-        'iyr': lambda s: is_int_in_range(s, 2010, 2020),
-        'eyr': lambda s: is_int_in_range(s, 2020, 2030),
-        'hgt': is_valid_height,
-        'hcl': lambda s: bool(HCL_RE.match(s)),
-        'ecl': lambda s: s in COLORS,
-        'pid': lambda s: bool(PID_RE.match(s)),
+        "byr": lambda s: is_int_in_range(s, 1920, 2002),
+        "iyr": lambda s: is_int_in_range(s, 2010, 2020),
+        "eyr": lambda s: is_int_in_range(s, 2020, 2030),
+        "hgt": is_valid_height,
+        "hcl": lambda s: bool(HCL_RE.match(s)),
+        "ecl": lambda s: s in COLORS,
+        "pid": lambda s: bool(PID_RE.match(s)),
     }
     try:
         return all(func(passport[k]) for k, func in criteria.items())
     except KeyError:
         return False
+
 
 # Examples provided
 example1 = """ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
@@ -121,7 +127,7 @@ for p in passports_invalid:
 
 
 # Real problem
-file_path='day4_input.txt'
+file_path = "day4_input.txt"
 with open(file_path) as f:
     passports = get_passports(f.read())
     print(sum(passport_is_valid1(p) for p in passports) == 228)

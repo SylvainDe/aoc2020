@@ -1,6 +1,7 @@
-def get_area(file_path='day3_input.txt'):
+def get_area(file_path="day3_input.txt"):
     with open(file_path) as f:
         return [l.strip() for l in f]
+
 
 def get_number_of_trees(area, dx=3, dy=1):
     x = 0
@@ -8,13 +9,15 @@ def get_number_of_trees(area, dx=3, dy=1):
     for line in area[::dy]:
         path.append(line[x])
         x = (x + dx) % len(line)
-    return sum(x == '#' for x in path)
+    return sum(x == "#" for x in path)
+
 
 def get_number_of_tree_for_slopes(area, slopes):
     prod = 1
     for dx, dy in slopes:
         prod *= get_number_of_trees(area, dx, dy)
     return prod
+
 
 # Examples provided
 area = [
