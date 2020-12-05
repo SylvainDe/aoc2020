@@ -10,6 +10,13 @@ def get_seat_id_from_boarding_pass(bp):
     return row * 8 + col
 
 
+def get_missing_seat_id(seat_ids):
+    for i in seat_ids:
+        if (i + 1) not in seat_ids and (i + 2) in seat_ids:
+            return i + 1
+    return None
+
+
 def run_tests():
     assert get_seat_id_from_boarding_pass("FBFBBFFRLR") == 357
     assert get_seat_id_from_boarding_pass("BFFFBBFRRR") == 567
@@ -19,14 +26,8 @@ def run_tests():
 
 def get_solutions():
     seat_ids = get_seat_ids_from_file()
-    max_seat_id = max(seat_ids)
-    print(max_seat_id == 850)
-    found = None
-    for i in range(max_seat_id):
-        if (i + 1) in seat_ids and (i - 1) in seat_ids and i not in seat_ids:
-            found = i
-            break
-    print(found == 599)
+    print(max(seat_ids) == 850)
+    print(get_missing_seat_id(seat_ids) == 599)
 
 
 if __name__ == "__main__":
