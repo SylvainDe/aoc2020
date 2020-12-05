@@ -1,6 +1,6 @@
 def get_seat_ids_from_file(file_path="day5_input.txt"):
     with open(file_path) as f:
-        return [get_seat_id_from_boarding_pass(l.strip()) for l in f]
+        return set([get_seat_id_from_boarding_pass(l.strip()) for l in f])
 
 
 def get_seat_id_from_boarding_pass(bp):
@@ -19,7 +19,14 @@ def run_tests():
 
 def get_solutions():
     seat_ids = get_seat_ids_from_file()
-    print(max(seat_ids) == 850)
+    max_seat_id = max(seat_ids)
+    print(max_seat_id == 850)
+    found = None
+    for i in range(max_seat_id):
+        if (i + 1) in seat_ids and (i - 1) in seat_ids and i not in seat_ids:
+            found = i
+            break
+    print(found == 599)
 
 
 if __name__ == "__main__":

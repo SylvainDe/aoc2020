@@ -1,6 +1,6 @@
-import day1, day2, day3, day4
+import day1, day2, day3, day4, day5
 
-days = [day1, day2, day3, day4]
+days = [day1, day2, day3, day4, day5]
 
 
 def run_tests():
