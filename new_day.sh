@@ -11,6 +11,7 @@ firefox "${puzzle_url}"
 firefox "${input_url}"
 touch "${input_file}"
 cp ./day_template.py "${script_file}"
+sed -i "s/DAYNUMBER/${day}/g" "${script_file}"
 echo -e "\n${puzzle_url} : 0/2" >> README.md
 
 git add "${input_file}" "${script_file}" README.md

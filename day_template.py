@@ -1,4 +1,4 @@
-def get_xxx_from_file(file_path="dayN_input.txt"):
+def get_xxx_from_file(file_path="dayDAYNUMBER_input.txt"):
     with open(file_path) as f:
         return [l.strip() for l in f]
 
