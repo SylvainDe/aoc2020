@@ -85,6 +85,18 @@ def run_tests():
     assert get_nb_colors_to_contain(rules, "shiny gold") == 4
     assert get_number_of_bags_in_colored_bag(rules, "shiny gold") == 32
 
+    example2 = [
+        "shiny gold bags contain 2 dark red bags.",
+        "dark red bags contain 2 dark orange bags.",
+        "dark orange bags contain 2 dark yellow bags.",
+        "dark yellow bags contain 2 dark green bags.",
+        "dark green bags contain 2 dark blue bags.",
+        "dark blue bags contain 2 dark violet bags.",
+        "dark violet bags contain no other bags.",
+    ]
+    rules = [get_rule_from_line(l) for l in example2]
+    assert get_number_of_bags_in_colored_bag(rules, "shiny gold") == 126
+
 
 def get_solutions():
     rules = get_rules_from_file()
