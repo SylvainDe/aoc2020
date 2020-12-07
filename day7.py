@@ -47,6 +47,21 @@ def get_nb_colors_to_contain(rules, color):
     return len(reachable) - 1
 
 
+def get_number_of_bags_in_colored_bag(rules, color):
+    computed_bags = dict()
+    change = True
+    while change:
+        change = False
+        for c1, lst in rules:
+            if not c1 in computed_bags and all(c2 in computed_bags for _, c2 in lst):
+                nb_bags = sum(nb * computed_bags[c2] for nb, c2 in lst)
+                if c1 == color:
+                    return nb_bags
+                computed_bags[c1] = 1 + nb_bags
+                change = True
+    return None
+
+
 def run_tests():
     assert get_rule_from_line(
         "light red bags contain 1 bright white bag, 2 muted yellow bags."
@@ -55,7 +70,7 @@ def run_tests():
         "faded blue",
         [],
     )
-    examples1 = [
+    example1 = [
         "light red bags contain 1 bright white bag, 2 muted yellow bags.",
         "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
         "bright white bags contain 1 shiny gold bag.",
@@ -66,13 +81,15 @@ def run_tests():
         "faded blue bags contain no other bags.",
         "dotted black bags contain no other bags.",
     ]
-    rules = [get_rule_from_line(l) for l in examples1]
+    rules = [get_rule_from_line(l) for l in example1]
     assert get_nb_colors_to_contain(rules, "shiny gold") == 4
+    assert get_number_of_bags_in_colored_bag(rules, "shiny gold") == 32
 
 
 def get_solutions():
     rules = get_rules_from_file()
     print(get_nb_colors_to_contain(rules, "shiny gold") == 296)
+    print(get_number_of_bags_in_colored_bag(rules, "shiny gold") == 9339)
 
 
 if __name__ == "__main__":
