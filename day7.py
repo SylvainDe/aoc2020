@@ -30,7 +30,21 @@ def get_rule_from_line(line):
 
 
 def get_nb_colors_to_contain(rules, color):
-    pass  # TODO
+    transitive_content = dict()
+    can_be_in = dict()
+    for c1, lst in rules:
+        for _, c2 in lst:
+            can_be_in.setdefault(c2, []).append(c1)
+
+    reachable = set()
+    to_process = set([color])
+    while to_process:
+        c1 = to_process.pop()
+        reachable.add(c1)
+        for c2 in can_be_in.get(c1, []):
+            if c2 not in reachable:
+                to_process.add(c2)
+    return len(reachable) - 1
 
 
 def run_tests():
@@ -53,12 +67,12 @@ def run_tests():
         "dotted black bags contain no other bags.",
     ]
     rules = [get_rule_from_line(l) for l in examples1]
-    print(get_nb_colors_to_contain(rules, "shiny gold"))
+    assert get_nb_colors_to_contain(rules, "shiny gold") == 4
 
 
 def get_solutions():
     rules = get_rules_from_file()
-    # TODO
+    print(get_nb_colors_to_contain(rules, "shiny gold") == 296)
 
 
 if __name__ == "__main__":
