@@ -8,25 +8,19 @@ def get_adapters_from_file(file_path="day10_input.txt"):
 
 
 def get_jolt_differences(adapters):
-    adapters = sorted(adapters)
-    differences = []
-    prev = 0
-    for ad in adapters:
-        differences.append(ad - prev)
-        prev = ad
-    differences.append(3)
-    return collections.Counter(differences)
+    adapters = [0] + sorted(adapters) + [max(adapters) + 3]
+    return collections.Counter(ad2 - ad1 for ad1, ad2 in zip(adapters, adapters[1:]))
 
 
 def get_nb_charging_arrangements(adapters):
     adapters = [0] + sorted(adapters)
-    nb_arr = [0] * len(adapters)
+    nb_arr = []
     for i, ad in enumerate(adapters):
         nb = 0 if i else 1
         for idx in range(max(0, i - 3), i):
             if adapters[idx] + 3 >= ad:
                 nb += nb_arr[idx]
-        nb_arr[i] = nb
+        nb_arr.append(nb)
     return nb_arr[-1]
 
 
