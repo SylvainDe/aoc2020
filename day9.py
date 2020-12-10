@@ -68,7 +68,7 @@ def run_tests():
 def get_solutions():
     numbers = get_numbers_from_file()
     print(find_first_counterexample(numbers, 25) == 70639851)
-    print(solution_for_part2(numbers, 25))
+    print(solution_for_part2(numbers, 25) == 8249240)
 
 
 if __name__ == "__main__":
