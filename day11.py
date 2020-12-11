@@ -1,11 +1,23 @@
 import itertools
 
 
+def string_to_seat_layout(string):
+    return {
+        (i, j): s
+        for i, line in enumerate(string.split("\n"))
+        for j, s in enumerate(line)
+    }
+
+
+def seat_layout_to_string(seats):
+    m = max(i for i, j in seats.keys())
+    n = max(j for i, j in seats.keys())
+    return "\n".join("".join(seats[(i, j)] for j in range(n)) for i in range(m))
+
+
 def get_seat_layout_from_file(file_path="day11_input.txt"):
     with open(file_path) as f:
-        return {
-            (i, j): s for i, line in enumerate(f) for j, s in enumerate(line.strip())
-        }
+        return string_to_seat_layout(f.read())
 
 
 directions = [pos for pos in itertools.product((-1, 0, +1), repeat=2) if pos != (0, 0)]
@@ -62,7 +74,8 @@ def get_nb_seat_on_fixedpoint(seats, func):
 
 
 def run_tests():
-    example1_str = """L.LL.LL.LL
+    example1 = string_to_seat_layout(
+        """L.LL.LL.LL
 LLLLLLL.LL
 L.L.L..L..
 LLLL.LL.LL
@@ -72,11 +85,34 @@ L.LLLLL.LL
 LLLLLLLLLL
 L.LLLLLL.L
 L.LLLLL.LL"""
-    example1 = {
-        (i, j): s
-        for i, line in enumerate(example1_str.split("\n"))
-        for j, s in enumerate(line)
-    }
+    )
+    example1_step = get_new_seats(example1, get_new_seat_value_rule1)
+    example2 = string_to_seat_layout(
+        """#.##.##.##
+#######.##
+#.#.#..#..
+####.##.##
+#.##.##.##
+#.#####.##
+..#.#.....
+##########
+#.######.#
+#.#####.##"""
+    )
+    example3 = string_to_seat_layout(
+        """#.LL.L#.##
+#LLLLLL.L#
+L.L.L..L..
+#LLL.LL.L#
+#.LL.LL.LL
+#.LLLL#.##
+..L.L.....
+#LLLLLLLL#
+#.LLLLLL.L
+#.#LLLL.##"""
+    )
+    assert example2 == get_new_seats(example1, get_new_seat_value_rule1)
+    assert example3 == get_new_seats(example2, get_new_seat_value_rule1)
     assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule1) == 37
     assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule2) == 26
 
