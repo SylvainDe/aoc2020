@@ -12,7 +12,7 @@ def string_to_seat_layout(string):
 def seat_layout_to_string(seats):
     m = max(i for i, j in seats.keys())
     n = max(j for i, j in seats.keys())
-    return "\n".join("".join(seats[(i, j)] for j in range(n)) for i in range(m))
+    return "\n".join("".join(seats[(i, j)] for j in range(n + 1)) for i in range(m + 1))
 
 
 def get_seat_layout_from_file(file_path="day11_input.txt"):
@@ -99,7 +99,7 @@ L.LLLLL.LL"""
 #.######.#
 #.#####.##"""
     )
-    example3 = string_to_seat_layout(
+    example3a = string_to_seat_layout(
         """#.LL.L#.##
 #LLLLLL.L#
 L.L.L..L..
@@ -111,9 +111,25 @@ L.L.L..L..
 #.LLLLLL.L
 #.#LLLL.##"""
     )
+    example3b = string_to_seat_layout(
+        """#.LL.LL.L#
+#LLLLLL.LL
+L.L.L..L..
+LLLL.LL.LL
+L.LL.LL.LL
+L.LLLLL.LL
+..L.L.....
+LLLLLLLLL#
+#.LLLLLL.L
+#.LLLLL.L#"""
+    )
+
     assert example2 == get_new_seats(example1, get_new_seat_value_rule1)
-    assert example3 == get_new_seats(example2, get_new_seat_value_rule1)
+    assert example3a == get_new_seats(example2, get_new_seat_value_rule1)
     assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule1) == 37
+
+    assert example2 == get_new_seats(example1, get_new_seat_value_rule2)
+    assert example3b == get_new_seats(example2, get_new_seat_value_rule2)
     assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule2) == 26
 
 
