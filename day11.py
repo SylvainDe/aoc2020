@@ -26,10 +26,6 @@ def get_new_seat_value_rule1(seats, pos):
     return seat
 
 
-def perform_one_seat_change_round_rule1(seats):
-    return {pos: get_new_seat_value_rule1(seats, pos) for pos in seats.keys()}
-
-
 def get_nb_visible_occupied_seats(seats, pos):
     i, j = pos
     nb = 0
@@ -52,13 +48,13 @@ def get_new_seat_value_rule2(seats, pos):
     return seat
 
 
-def perform_one_seat_change_round_rule2(seats):
-    return {pos: get_new_seat_value_rule2(seats, pos) for pos in seats.keys()}
+def get_new_seats(seats, func):
+    return {pos: func(seats, pos) for pos in seats.keys()}
 
 
 def get_nb_seat_on_fixedpoint(seats, func):
     while True:
-        new_seats = func(seats)
+        new_seats = get_new_seats(seats, func)
         if new_seats == seats:
             break
         seats = new_seats
@@ -81,24 +77,14 @@ L.LLLLL.LL"""
         for i, line in enumerate(example1_str.split("\n"))
         for j, s in enumerate(line)
     }
-    assert (
-        get_nb_seat_on_fixedpoint(example1, perform_one_seat_change_round_rule1) == 37
-    )
-    assert (
-        get_nb_seat_on_fixedpoint(example1, perform_one_seat_change_round_rule2) == 26
-    )
+    assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule1) == 37
+    assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule2) == 26
 
 
 def get_solutions():
     seat_layout = get_seat_layout_from_file()
-    print(
-        get_nb_seat_on_fixedpoint(seat_layout, perform_one_seat_change_round_rule1)
-        == 2204
-    )
-    print(
-        get_nb_seat_on_fixedpoint(seat_layout, perform_one_seat_change_round_rule2)
-        == 1986
-    )
+    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seat_value_rule1) == 2204)
+    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seat_value_rule2) == 1986)
 
 
 if __name__ == "__main__":
