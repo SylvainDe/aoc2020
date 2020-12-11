@@ -19,3 +19,5 @@ https://adventofcode.com/2020/day/8 : 2/2
 https://adventofcode.com/2020/day/9 : 2/2
 
 https://adventofcode.com/2020/day/10 : 2/2
+
+https://adventofcode.com/2020/day/11 : 1/2
