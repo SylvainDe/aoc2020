@@ -14,50 +14,35 @@ def get_instructions_from_file(file_path="day12_input.txt"):
 #        |
 #        | SOUTH
 
-
-class Direction(Enum):
-    EAST = 0
-    SOUTH = 1
-    WEST = 2
-    NORTH = 3
-
-
 shifting = {
-    Direction.EAST: (1, 0),
-    Direction.SOUTH: (0, -1),
-    Direction.WEST: (-1, 0),
-    Direction.NORTH: (0, 1),
+    "E": (1, 0),
+    "S": (0, -1),
+    "W": (-1, 0),
+    "N": (0, 1),
 }
+
+rotations = ["E", "S", "W", "N"]
 
 
 def state_after_instruction(state, instruction):
     x, y, direc = state
     action, n = instruction[0], int(instruction[1:])
-    if action == "N":
-        dx, dy = shifting[Direction.NORTH]
+    if action in shifting:
+        dx, dy = shifting[action]
         x, y = x + n * dx, y + n * dy
-    elif action == "S":
-        dx, dy = shifting[Direction.SOUTH]
-        x, y = x + n * dx, y + n * dy
-    elif action == "E":
-        dx, dy = shifting[Direction.EAST]
-        x, y = x + n * dx, y + n * dy
-    elif action == "W":
-        dx, dy = shifting[Direction.WEST]
-        x, y = x + n * dx, y + n * dy
-    elif action in ("L", "R"):
-        rot = (-1 if action == "L" else 1) * n / 90
-        direc = Direction((direc.value + rot) % 4)
     elif action == "F":
         dx, dy = shifting[direc]
         x, y = x + n * dx, y + n * dy
+    elif action in ("L", "R"):
+        rot = (-1 if action == "L" else 1) * n // 90
+        direc = rotations[(rotations.index(direc) + rot) % 4]
     else:
         1 / 0
     return x, y, direc
 
 
 def state_after_instructions(instructions):
-    state = (0, 0, Direction.EAST)
+    state = (0, 0, "E")
     for ins in instructions:
         state = state_after_instruction(state, ins)
     return state
@@ -66,17 +51,8 @@ def state_after_instructions(instructions):
 def state_after_instruction2(state, instruction):
     xs, ys, xw, yw = state
     action, n = instruction[0], int(instruction[1:])
-    if action == "N":
-        dx, dy = shifting[Direction.NORTH]
-        xw, yw = xw + n * dx, yw + n * dy
-    elif action == "S":
-        dx, dy = shifting[Direction.SOUTH]
-        xw, yw = xw + n * dx, yw + n * dy
-    elif action == "E":
-        dx, dy = shifting[Direction.EAST]
-        xw, yw = xw + n * dx, yw + n * dy
-    elif action == "W":
-        dx, dy = shifting[Direction.WEST]
+    if action in shifting:
+        dx, dy = shifting[action]
         xw, yw = xw + n * dx, yw + n * dy
     elif action == "F":
         xs, ys = xs + n * xw, ys + n * yw
