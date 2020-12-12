@@ -45,10 +45,9 @@ def state_after_instruction(state, instruction):
     elif action == "W":
         dx, dy = shifting[Direction.WEST]
         x, y = x + n * dx, y + n * dy
-    elif action == "L":
-        direc = Direction((direc.value - n / 90) % 4)
-    elif action == "R":
-        direc = Direction((direc.value + n / 90) % 4)
+    elif action in ("L", "R"):
+        rot = (-1 if action == "L" else 1) * n / 90
+        direc = Direction((direc.value + rot) % 4)
     elif action == "F":
         dx, dy = shifting[direc]
         x, y = x + n * dx, y + n * dy
@@ -65,7 +64,7 @@ def state_after_instructions(instructions):
 
 
 def state_after_instruction2(state, instruction):
-    xs, ys, direc, xw, yw = state
+    xs, ys, xw, yw = state
     action, n = instruction[0], int(instruction[1:])
     if action == "N":
         dx, dy = shifting[Direction.NORTH]
@@ -79,10 +78,6 @@ def state_after_instruction2(state, instruction):
     elif action == "W":
         dx, dy = shifting[Direction.WEST]
         xw, yw = xw + n * dx, yw + n * dy
-    # elif action == 'L':
-    #     direc = Direction((direc.value - n/90) % 4)
-    # elif action == 'R':
-    #     direc = Direction((direc.value + n/90) % 4)
     elif action == "F":
         xs, ys = xs + n * xw, ys + n * yw
     elif action in ("L", "R"):
@@ -91,15 +86,13 @@ def state_after_instruction2(state, instruction):
             xw, yw = yw, -xw
     else:
         1 / 0
-    return xs, ys, direc, xw, yw
+    return xs, ys, xw, yw
 
 
 def state_after_instructions2(instructions):
-    state = (0, 0, Direction.EAST, 10, 1)
+    state = (0, 0, 10, 1)
     for ins in instructions:
-        print(state)
         state = state_after_instruction2(state, ins)
-    print(state)
     return state
 
 
@@ -113,7 +106,7 @@ def run_tests():
     ]
     x, y, direct = state_after_instructions(example1)
     assert abs(x) + abs(y) == 25
-    x, y, direct, xw, yw = state_after_instructions2(example1)
+    x, y, xw, yw = state_after_instructions2(example1)
     assert abs(x) + abs(y) == 286
 
 
@@ -121,7 +114,7 @@ def get_solutions():
     instructions = get_instructions_from_file()
     x, y, direct = state_after_instructions(instructions)
     print(abs(x) + abs(y) == 381)
-    x, y, direct, xw, yw = state_after_instructions2(instructions)
+    x, y, xw, yw = state_after_instructions2(instructions)
     print(abs(x) + abs(y) == 28591)
 
 
