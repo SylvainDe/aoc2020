@@ -19,20 +19,28 @@ def get_next_bus(time, buses):
     return min((get_wait_time_for_bus(time, b), b) for b in buses if b is not None)
 
 
-def get_lcm(a, b):
+def lcm(a, b):
     return abs(a * b) // math.gcd(a, b)
 
 
 def get_next_timestamp_with_offsets(buses):
-    buses = [(i, b) for i, b in enumerate(buses) if b is not None]
+    buses = [(idx, freq) for idx, freq in enumerate(buses) if freq is not None]
     time = 0
-    lcm = 1
-    for i, b in buses:
+    step = 1
+    for idx, freq in buses:
+        # We want to reach a time t such that:
+        # t+idx = k*freq by starting from "time" with steps of "step"
+        # That is: time + idx + y*step = x*freq with x, y integers
+        # Or: time + idx = y*freq - x*step
+        # which could be written/solved with Euclidian algorithm
+        # but it is not worth the pain
+        if (time + idx) % math.gcd(step, freq):
+            return None
         while True:
-            if (time + i) % b == 0:
+            if (time + idx) % freq == 0:
                 break
-            time += lcm
-        lcm = get_lcm(lcm, b)
+            time += step
+        step = lcm(step, freq)
     return time
 
 
@@ -48,6 +56,9 @@ def run_tests():
     assert get_next_timestamp_with_offsets([67, None, 7, 59, 61]) == 779210
     assert get_next_timestamp_with_offsets([67, 7, None, 59, 61]) == 1261476
     assert get_next_timestamp_with_offsets([1789, 37, 47, 1889]) == 1202161486
+    # My own tests
+    assert get_next_timestamp_with_offsets([2, None, 4]) == 2
+    assert get_next_timestamp_with_offsets([2, 4]) == None
 
 
 def get_solutions():
