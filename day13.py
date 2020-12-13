@@ -11,8 +11,7 @@ def get_time_and_buses(line1, line2):
 
 
 def get_wait_time_for_bus(time, freq):
-    p, q = divmod(time, freq)
-    return 0 if q == 0 else freq - q
+    return freq - (time % freq)
 
 
 def get_next_bus(time, buses):
