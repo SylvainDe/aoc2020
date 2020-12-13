@@ -1,24 +1,22 @@
 import math
 
 
-def get_bus_information_from_file(file_path="day13_input.txt"):
+def get_info_from_file(file_path="day13_input.txt"):
     with open(file_path) as f:
-        return get_bus_info(*[l for l in f])
+        return get_time_and_buses(*[l for l in f])
 
 
-def get_bus_info(line1, line2):
+def get_time_and_buses(line1, line2):
     return int(line1), [None if s == "x" else int(s) for s in line2.split(",")]
 
 
-def get_wait_time_for_bus(ts, freq):
-    p, q = divmod(ts, freq)
+def get_wait_time_for_bus(time, freq):
+    p, q = divmod(time, freq)
     return 0 if q == 0 else freq - q
 
 
-def get_next_bus(bus_info):
-    ts, buses = bus_info
-    next_buses = [(b, get_wait_time_for_bus(ts, b)) for b in buses if b is not None]
-    return min(next_buses, key=lambda b: b[1])
+def get_next_bus(time, buses):
+    return min((get_wait_time_for_bus(time, b), b) for b in buses if b is not None)
 
 
 def get_lcm(a, b):
@@ -27,23 +25,24 @@ def get_lcm(a, b):
 
 def get_next_timestamp_with_offsets(buses):
     buses = [(i, b) for i, b in enumerate(buses) if b is not None]
-    ts = 0
+    time = 0
     lcm = 1
     for i, b in buses:
         while True:
-            if (ts + i) % b == 0:
+            if (time + i) % b == 0:
                 break
-            ts += lcm
+            time += lcm
         lcm = get_lcm(lcm, b)
-    return ts
+    return time
 
 
 def run_tests():
     example1 = ["939", "7,13,x,x,59,x,31,19"]
-    info = get_bus_info(example1[0], example1[1])
-    nb, wait = get_next_bus(info)
+    time, buses = get_time_and_buses(example1[0], example1[1])
+    wait, nb = get_next_bus(time, buses)
+    assert (nb, wait) == (59, 5)
     assert nb * wait == 295
-    assert get_next_timestamp_with_offsets(info[1]) == 1068781
+    assert get_next_timestamp_with_offsets(buses) == 1068781
     assert get_next_timestamp_with_offsets([17, None, 13, 19]) == 3417
     assert get_next_timestamp_with_offsets([67, 7, 59, 61]) == 754018
     assert get_next_timestamp_with_offsets([67, None, 7, 59, 61]) == 779210
@@ -52,10 +51,10 @@ def run_tests():
 
 
 def get_solutions():
-    info = get_bus_information_from_file()
-    nb, wait = get_next_bus(info)
+    time, buses = get_info_from_file()
+    wait, nb = get_next_bus(time, buses)
     print(nb * wait == 2845)
-    print(get_next_timestamp_with_offsets(info[1]) == 487905974205117)
+    print(get_next_timestamp_with_offsets(buses) == 487905974205117)
 
 
 if __name__ == "__main__":
