@@ -15,34 +15,27 @@ mem_re = re.compile(r"^mem\[(?P<addr>\d+)\] = (?P<value>\d+)")
 
 def apply_mask(value, mask):
     value = format(value, "0%db" % len(mask))
-    bits = []
-    for bv, bm in zip(value, mask):
-        bits.append(bv if bm == "X" else bm)
+    bits = [bv if bm == "X" else bm for bv, bm in zip(value, mask)]
     return int("".join(bits), 2)
+
+
+def all_combinations(lst):
+    for l in range(len(lst) + 1):
+        for comb in itertools.combinations(lst, l):
+            yield comb
 
 
 def apply_mask2(value, mask):
     value = format(value, "0%db" % len(mask))
     floating = []
-    bits = []
-    for bv, bm in zip(value, mask):
-        if bm == "0":
-            floating.append(0)
-            bits.append(bv)
-        elif bm == "1":
-            floating.append(0)
-            bits.append(bm)
-        else:
-            assert bm == "X"
-            floating.append(1)
-            bits.append("0")
-    base_value = int("".join(bits), 2)
-    floating_values = [2 ** i for i, b in enumerate(reversed(floating)) if b]
-    values = []
-    for l in range(len(floating_values) + 1):
-        for comb in itertools.combinations(floating_values, l):
-            values.append(base_value + sum(comb))
-    return values
+    base_val = 0
+    for i, (bval, bmask) in enumerate(reversed(list(zip(value, mask)))):
+        val = 2 ** i
+        if bmask == "X":
+            floating.append(val)
+        elif int(bmask) or int(bval):
+            base_val += val
+    return [base_val + sum(comb) for comb in all_combinations(floating)]
 
 
 def run_program(program):
