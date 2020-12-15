@@ -1,3 +1,4 @@
+# vi: set shiftwidth=4 tabstop=4 expandtab:
 import re
 
 LINE_RE = re.compile(r"(?P<mini>\d+)-(?P<maxi>\d+) (?P<letter>.): (?P<pwd>.*)")

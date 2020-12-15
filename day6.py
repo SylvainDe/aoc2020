@@ -1,3 +1,6 @@
+# vi: set shiftwidth=4 tabstop=4 expandtab:
+
+
 def get_groups_from_file(file_path="day6_input.txt"):
     with open(file_path) as f:
         return get_groups_from_string(f.read())

@@ -1,3 +1,4 @@
+# vi: set shiftwidth=4 tabstop=4 expandtab:
 import itertools
 
 
@@ -12,7 +13,7 @@ def yield_game(numbers):
     for turn, n in enumerate(numbers):
         turns.setdefault(n, []).append(turn)
         yield n
-    for turn in itertools.count(start=turn+1):
+    for turn in itertools.count(start=turn + 1):
         lst = turns[n]
         n = (lst[-1] - lst[-2]) if len(lst) > 1 else 0
         turns.setdefault(n, []).append(turn)

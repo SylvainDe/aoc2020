@@ -1,3 +1,6 @@
+# vi: set shiftwidth=4 tabstop=4 expandtab:
+
+
 def get_seat_ids_from_file(file_path="day5_input.txt"):
     with open(file_path) as f:
         return set([get_seat_id_from_boarding_pass(l.strip()) for l in f])
