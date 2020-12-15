@@ -29,9 +29,15 @@ def run_tests():
     assert play_game(example1, 2020) == 436
 
 
+#    assert play_game(example1, 30000000) == 175594 - slow
+
+
 def get_solutions():
     numbers = get_numbers_from_file()
-    print(play_game(numbers, 2020))
+    print(play_game(numbers, 2020) == 273)
+
+
+#    print(play_game(numbers, 30000000) == 47205) - slow
 
 
 if __name__ == "__main__":
