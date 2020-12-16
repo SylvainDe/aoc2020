@@ -30,4 +30,4 @@ https://adventofcode.com/2020/day/14 : 2/2
 
 https://adventofcode.com/2020/day/15 : 2/2
 
-https://adventofcode.com/2020/day/16 : 0/2
+https://adventofcode.com/2020/day/16 : 2/2
