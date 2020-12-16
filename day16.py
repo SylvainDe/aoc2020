@@ -27,6 +27,34 @@ def value_valid_for_a_field(rules, n):
 def validity_rate(rules, tickets):
     return sum(n for t in tickets for n in t if not value_valid_for_a_field(rules, n))
 
+def guess_field_position(rules, tickets):
+    impossible_positions = { name: set() for name, _ in rules }
+    for t in tickets:
+        for i, n in enumerate(t):
+            for name, lst in rules:
+               if not any(mini <= n <= maxi for (mini, maxi) in lst):
+                   impossible_positions[name].add(i)
+    positions = set(range(len(tickets[0])))
+    found = dict()
+    while impossible_positions:
+        for name, imposs in impossible_positions.items():
+            possible = positions - imposs
+            if len(possible) == 1:
+                unique_pos = possible.pop()
+                found[name] = unique_pos
+                del impossible_positions[name]
+                for name, imposs in impossible_positions.items():
+                    imposs.add(unique_pos)
+                break
+        else:
+            # TODO
+            print("No change")
+            print(found)
+            print(impossible_positions)
+            return None
+    return found
+
+
 def run_tests():
     example1 = """class: 1-3 or 5-7
 row: 6-11 or 33-44
@@ -46,9 +74,25 @@ nearby tickets:
     assert tickets == [[7, 3, 47], [40, 4, 50], [55, 2, 20], [38, 6, 12]]
     assert validity_rate(rules, tickets)
 
+    example2 = """class: 0-1 or 4-19
+row: 0-5 or 8-19
+seat: 0-13 or 16-19
+
+your ticket:
+11,12,13
+
+nearby tickets:
+3,9,18
+15,1,5
+5,14,9"""
+    rules, ticket, tickets = get_info_from_string(example2)
+    assert guess_field_position(rules, tickets) == {'seat': 2, 'class': 1, 'row': 0}
+
 def get_solutions():
     rules, ticket, tickets = get_info_from_file()
-    print(validity_rate(rules, tickets))
+    print(validity_rate(rules, tickets) == 26053)
+    # I have to be smarter and do some backtracking
+    print(guess_field_position(rules, tickets))
 
 
 if __name__ == "__main__":
