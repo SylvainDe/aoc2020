@@ -3,47 +3,31 @@ import itertools
 import collections
 
 
-def get_state_from_string(string, nb_dim=3):
+def get_2d_points_from_string(string):
     return {
-        tuple([i, j] + [0] * (nb_dim - 2))
+        (i, j)
         for i, l in enumerate(string.split("\n"))
         for j, c in enumerate(l)
         if c == "#"
     }
 
 
-def get_state_from_file(nb_dim=3, file_path="day17_input.txt"):
+def get_2d_points_from_file(file_path="day17_input.txt"):
     with open(file_path) as f:
-        return get_state_from_string(f.read(), nb_dim)
+        return get_2d_points_from_string(f.read())
 
 
-def pretty_print_data(data, empty=" "):
-    keys = data.keys()
-    xmin, ymin, zmin = (min(p[dim] for p in keys) for dim in range(3))
-    xmax, ymax, zmax = (max(p[dim] for p in keys) for dim in range(3))
-    for z in range(zmin, zmax + 1):
-        print("z = %d" % z)
-        for x in range(xmin, xmax + 1):
-            print("".join(data.get((x, y, z), empty) for y in range(ymin, ymax + 1)))
+def map_points_in_n_dim(points, nb_dim):
+    return {tuple(list(p) + [0] * (nb_dim - len(p))) for p in points}
 
 
-def pretty_print_state(state):
-    data = {p: "#" for p in state}
-    pretty_print_data(data, ".")
+def get_neighbours_coord(nb_dim=3):
+    origin = tuple([0] * nb_dim)
+    return [c for c in itertools.product((-1, 0, 1), repeat=nb_dim) if c != origin]
 
 
-def pretty_print_neighbours_count(neigh_count):
-    data = {p: "{:2d}".format(nb) for p, nb in neigh_count.items()}
-    pretty_print_data(data, "  ")
-
-
-neighbours_coord_3 = [
-    c for c in itertools.product((-1, 0, 1), repeat=3) if c != (0, 0, 0)
-]
-
-neighbours_coord_4 = [
-    c for c in itertools.product((-1, 0, 1), repeat=4) if c != (0, 0, 0, 0)
-]
+neighbours_coord_3 = get_neighbours_coord(3)
+neighbours_coord_4 = get_neighbours_coord(4)
 
 
 def get_neighbours_3(p):
@@ -75,17 +59,19 @@ def run_tests():
     example1 = """.#.
 ..#
 ###"""
-    state = get_state_from_string(example1, 3)
-    assert get_n_th_state(state, get_neighbours_3, 6) == 112
-    state = get_state_from_string(example1, 4)
-    assert get_n_th_state(state, get_neighbours_4, 6) == 848
+    points = get_2d_points_from_string(example1)
+    points_3d = map_points_in_n_dim(points, 3)
+    assert get_n_th_state(points_3d, get_neighbours_3, 6) == 112
+    points_4d = map_points_in_n_dim(points, 4)
+    assert get_n_th_state(points_4d, get_neighbours_4, 6) == 848
 
 
 def get_solutions():
-    state = get_state_from_file()
-    print(get_n_th_state(state, get_neighbours_3, 6) == 372)
-    state = get_state_from_file(nb_dim=4)
-    print(get_n_th_state(state, get_neighbours_4, 6) == 1896)
+    points = get_2d_points_from_file()
+    points_3d = map_points_in_n_dim(points, 3)
+    print(get_n_th_state(points_3d, get_neighbours_3, 6) == 372)
+    points_4d = map_points_in_n_dim(points, 4)
+    print(get_n_th_state(points_4d, get_neighbours_4, 6) == 1896)
 
 
 if __name__ == "__main__":
