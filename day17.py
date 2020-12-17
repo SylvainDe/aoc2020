@@ -3,18 +3,18 @@ import itertools
 import collections
 
 
-def get_state_from_string(string):
+def get_state_from_string(string, nb_dim=3):
     return {
-        (i, j, 0)
+        tuple([i, j] + [0] * (nb_dim - 2))
         for i, l in enumerate(string.split("\n"))
         for j, c in enumerate(l)
         if c == "#"
     }
 
 
-def get_state_from_file(file_path="day17_input.txt"):
+def get_state_from_file(nb_dim=3, file_path="day17_input.txt"):
     with open(file_path) as f:
-        return get_state_from_string(f.read())
+        return get_state_from_string(f.read(), nb_dim)
 
 
 def pretty_print_data(data, empty=" "):
@@ -37,20 +37,32 @@ def pretty_print_neighbours_count(neigh_count):
     pretty_print_data(data, "  ")
 
 
-neighbours_coord = [
+neighbours_coord_3 = [
     c for c in itertools.product((-1, 0, 1), repeat=3) if c != (0, 0, 0)
 ]
 
+neighbours_coord_4 = [
+    c for c in itertools.product((-1, 0, 1), repeat=4) if c != (0, 0, 0, 0)
+]
 
-def get_neighbours(p):
+
+def get_neighbours_3(p):
     x, y, z = p
-    for dx, dy, dz in neighbours_coord:
+    for dx, dy, dz in neighbours_coord_3:
         yield x + dx, y + dy, z + dz
 
 
-def get_n_th_state(state, n):
+def get_neighbours_4(p):
+    w, x, y, z = p
+    for dw, dx, dy, dz in neighbours_coord_4:
+        yield w + dw, x + dx, y + dy, z + dz
+
+
+def get_n_th_state(state, get_neighbours_func, n):
     for i in range(n):
-        neigh_count = collections.Counter(p2 for p in state for p2 in get_neighbours(p))
+        neigh_count = collections.Counter(
+            p2 for p in state for p2 in get_neighbours_func(p)
+        )
         state = {
             p
             for p, nb_neigh in neigh_count.items()
@@ -60,18 +72,20 @@ def get_n_th_state(state, n):
 
 
 def run_tests():
-    example1 = get_state_from_string(
-        """.#.
+    example1 = """.#.
 ..#
 ###"""
-    )
-    print(example1)
-    assert get_n_th_state(example1, 6) == 112
+    state = get_state_from_string(example1, 3)
+    assert get_n_th_state(state, get_neighbours_3, 6) == 112
+    state = get_state_from_string(example1, 4)
+    assert get_n_th_state(state, get_neighbours_4, 6) == 848
 
 
 def get_solutions():
     state = get_state_from_file()
-    print(get_n_th_state(state, 6) == 372)
+    print(get_n_th_state(state, get_neighbours_3, 6) == 372)
+    state = get_state_from_file(nb_dim=4)
+    print(get_n_th_state(state, get_neighbours_4, 6) == 1896)
 
 
 if __name__ == "__main__":
