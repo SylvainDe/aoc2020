@@ -1,4 +1,5 @@
 # vi: set shiftwidth=4 tabstop=4 expandtab:
+import operator
 
 
 def get_expr_from_file(file_path="day18_input.txt"):
@@ -7,61 +8,59 @@ def get_expr_from_file(file_path="day18_input.txt"):
 
 
 def handle_parenthesis(expr, eval_func):
-    for i, c in enumerate(expr):
-        lhs, rhs = expr[:i], expr[i + 1 :]
-        if c == "(":
-            nb_parenth = 1
-            for j, c2 in enumerate(rhs):
-                if c2 == "(":
-                    nb_parenth += 1
-                elif c2 == ")":
-                    nb_parenth -= 1
-                    if nb_parenth == 0:
-                        inside, rem = rhs[:j], rhs[j + 1 :]
-                        return (
-                            lhs
-                            + str(eval_func(inside))
-                            + handle_parenthesis(rem, eval_func)
-                        )
-            raise ValueError("Unmatched parenthesis in %s" % expr)
-    return expr
+    i = expr.find("(")
+    if i == -1:
+        return expr
+    lhs, rhs = expr[:i], expr[i + 1 :]
+    nb_parenth = 1
+    for j, c2 in enumerate(rhs):
+        if c2 == "(":
+            nb_parenth += 1
+        elif c2 == ")":
+            nb_parenth -= 1
+            if nb_parenth == 0:
+                inside, rem = rhs[:j], rhs[j + 1 :]
+                return lhs + str(eval_func(inside)) + handle_parenthesis(rem, eval_func)
+    raise ValueError("Unmatched parenthesis in %s" % expr)
+
+
+operations = {
+    "*": operator.mul,
+    "+": operator.add,
+    "-": operator.sub,  # Not useful
+}
 
 
 def eval_expr(expr):
-    expr = handle_parenthesis(expr, eval_expr)
     if not expr:
         return 0
+    expr = handle_parenthesis(expr, eval_expr)
+    # Start from the right to apply operations from left to right
     for i, c in reversed(list(enumerate(expr))):
-        if c in ("+", "*", "-"):
+        op = operations.get(c, None)
+        if op is not None:
             lhs, rhs = expr[:i], int(expr[i + 1 :])
-            if c == "+":
-                return eval_expr(lhs) + rhs
-            if c == "-":
-                return eval_expr(lhs) - rhs
-            elif c == "*":
-                return eval_expr(lhs) * rhs
-    val = int(expr)
-    return val
+            return op(eval_expr(lhs), rhs)
+    return int(expr)
+
+
+def handle_op(expr, eval_func, op, op_func):
+    i = expr.find(op)
+    if i == -1:
+        return expr
+    lhs, rhs = expr[:i], expr[i + 1 :]
+    return str(op_func(eval_func(lhs), eval_func(rhs)))
 
 
 def eval_expr2(expr):
-    expr = handle_parenthesis(expr, eval_expr2)
     if not expr:
         return 0
-    for i, c in enumerate(expr):
-        if c == "*":
-            lhs, rhs = expr[:i], expr[i + 1 :]
-            return eval_expr2(lhs) * eval_expr2(rhs)
-    for i, c in enumerate(expr):
-        lhs, rhs = expr[:i], expr[i + 1 :]
-        if c in ("+", "-"):
-            lhs = int(lhs) if lhs else 0
-            if c == "+":
-                return lhs + eval_expr2(rhs)
-            elif c == "-":
-                return lhs - eval_expr2(rhs)
-    val = int(expr)
-    return val
+    expr = handle_parenthesis(expr, eval_expr2)
+    # '*' is handled "first" so that "+" is computed with a higher precedence
+    expr = handle_op(expr, eval_expr2, "*", operator.mul)
+    expr = handle_op(expr, eval_expr2, "+", operator.add)
+    expr = handle_op(expr, eval_expr2, "-", operator.sub)  # Not useful
+    return int(expr)
 
 
 def run_tests():
@@ -90,6 +89,7 @@ def run_tests():
     assert eval_expr2("(2)") == 2
     assert eval_expr2("((((2))))") == 2
     assert eval_expr2("1 + 2 * 3") == 9
+    assert eval_expr2("1 - 2 + 3") in (-4, 2)  # Evaluation order matters
 
     assert eval_expr2("1 + (2 * 3) + (4 * (5 + 6))") == 51
     assert eval_expr2("2 * 3 + (4 * 5)") == 46
