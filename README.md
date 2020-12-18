@@ -33,3 +33,5 @@ https://adventofcode.com/2020/day/15 : 2/2
 https://adventofcode.com/2020/day/16 : 2/2
 
 https://adventofcode.com/2020/day/17 : 0/2
+
+https://adventofcode.com/2020/day/18 : 0/2
