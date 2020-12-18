@@ -1,5 +1,6 @@
 # vi: set shiftwidth=4 tabstop=4 expandtab:
 import itertools
+import collections
 
 
 def string_to_seat_layout(string):
@@ -24,50 +25,55 @@ def get_seat_layout_from_file(file_path="day11_input.txt"):
 directions = [pos for pos in itertools.product((-1, 0, +1), repeat=2) if pos != (0, 0)]
 
 
-def get_nb_occupied_neighbours(seats, pos):
-    i, j = pos
-    positions = [(i + di, j + dj) for (di, dj) in directions]
-    return sum(seats.get(pos2, None) == "#" for pos2 in positions)
-
-
-def get_new_seat_value_rule1(seats, pos):
-    seat = seats[pos]
+def get_new_seat_value_1(seat, nb_neigh):
     if seat == "L":
-        return "#" if get_nb_occupied_neighbours(seats, pos) == 0 else seat
+        return "#" if nb_neigh == 0 else seat
     elif seat == "#":
-        return "L" if get_nb_occupied_neighbours(seats, pos) >= 4 else seat
+        return "L" if nb_neigh >= 4 else seat
     return seat
 
 
-def get_nb_visible_occupied_seats(seats, pos):
-    i, j = pos
-    nb = 0
-    for di, dj in directions:
-        for d in itertools.count(start=1):
-            pos2 = i + (d * di), j + (d * dj)
-            seat = seats.get(pos2, None)
-            if seat != ".":
-                nb += seat == "#"
-                break
-    return nb
+def get_new_seats1(seats):
+    neighbours_count = collections.Counter(
+        (x + dx, y + dy)
+        for (x, y), seat in seats.items()
+        if seat == "#"
+        for dx, dy in directions
+    )
+    return {
+        pos: get_new_seat_value_1(seat, neighbours_count[pos])
+        for pos, seat in seats.items()
+    }
 
 
-def get_new_seat_value_rule2(seats, pos):
-    seat = seats[pos]
+def get_new_seat_value_rule2(seat, nb_visible):
     if seat == "L":
-        return "#" if get_nb_visible_occupied_seats(seats, pos) == 0 else seat
+        return "#" if nb_visible == 0 else seat
     elif seat == "#":
-        return "L" if get_nb_visible_occupied_seats(seats, pos) >= 5 else seat
+        return "L" if nb_visible >= 5 else seat
     return seat
 
 
-def get_new_seats(seats, func):
-    return {pos: func(seats, pos) for pos in seats.keys()}
+def get_new_seats2(seats):
+    visible_count = collections.Counter()
+    for (x, y), seat in seats.items():
+        if seat == "#":
+            for dx, dy in directions:
+                for d in itertools.count(start=1):
+                    pos = x + (d * dx), y + (d * dy)
+                    seat = seats.get(pos, None)
+                    if seat != ".":
+                        visible_count[pos] += 1
+                        break
+    return {
+        pos: get_new_seat_value_rule2(seat, visible_count[pos])
+        for pos, seat in seats.items()
+    }
 
 
 def get_nb_seat_on_fixedpoint(seats, func):
     while True:
-        new_seats = get_new_seats(seats, func)
+        new_seats = func(seats)
         if new_seats == seats:
             break
         seats = new_seats
@@ -87,7 +93,6 @@ LLLLLLLLLL
 L.LLLLLL.L
 L.LLLLL.LL"""
     )
-    example1_step = get_new_seats(example1, get_new_seat_value_rule1)
     example2 = string_to_seat_layout(
         """#.##.##.##
 #######.##
@@ -125,19 +130,19 @@ LLLLLLLLL#
 #.LLLLL.L#"""
     )
 
-    assert example2 == get_new_seats(example1, get_new_seat_value_rule1)
-    assert example3a == get_new_seats(example2, get_new_seat_value_rule1)
-    assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule1) == 37
+    assert example2 == get_new_seats1(example1)
+    assert example3a == get_new_seats1(example2)
+    assert get_nb_seat_on_fixedpoint(example1, get_new_seats1) == 37
 
-    assert example2 == get_new_seats(example1, get_new_seat_value_rule2)
-    assert example3b == get_new_seats(example2, get_new_seat_value_rule2)
-    assert get_nb_seat_on_fixedpoint(example1, get_new_seat_value_rule2) == 26
+    assert example2 == get_new_seats2(example1)
+    assert example3b == get_new_seats2(example2)
+    assert get_nb_seat_on_fixedpoint(example1, get_new_seats2) == 26
 
 
 def get_solutions():
     seat_layout = get_seat_layout_from_file()
-    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seat_value_rule1) == 2204)
-    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seat_value_rule2) == 1986)
+    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seats1) == 2204)
+    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seats2) == 1986)
 
 
 if __name__ == "__main__":
