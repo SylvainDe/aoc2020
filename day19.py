@@ -26,28 +26,30 @@ def get_rules_from_string(string):
         rules[n] = r
     return rules
 
+def seq_match_string(rules, seq, s):
+    rems = [s]
+    for e in seq:
+        rems2 = []
+        for rem in rems:
+            for rem2 in rule_match_string(rules, rules[e], rem):
+                rems2.append(rem2)
+        if not rems2:
+            return []
+        rems = rems2
+    return rems
+
 def rule_match_string(rules, rule, s):
-    #print(rule, s)
     # Either a literal string
     if isinstance(rule, str):
         if not s.startswith(rule):
-            return None
-        return s[len(rule):]
-    # Or a list or alternatives
-    for alt in rule:
-        s2 = s
-        for seq in alt:
-            s2 = rule_match_string(rules, rules[seq], s2)
-            if s2 is None:
-                break
-        else:
-            #print(rule, s, "match with rem", s2)
-            return s2
-    return None
+            return []
+        return [s[len(rule):]]
+    # Or a list of alternatives
+    return [rem for alt in rule for rem in seq_match_string(rules, alt, s)]
 
 
 def rules_match_string(rules, s):
-    return rule_match_string(rules, rules[0], s) == ""
+    return "" in rule_match_string(rules, rules[0], s)
 
 def example1():
     rules = """0: 1 2
@@ -81,6 +83,15 @@ def run_tests():
 def get_solutions():
     rules, strings = get_data_from_file()
     print(sum(rules_match_string(rules, s) for s in strings) == 118)
+    new_rules = [
+        "8: 42 | 42 8",
+        "11: 42 31 | 42 11 31",
+    ]
+    for line in new_rules:
+        n, r = get_rule_from_string(line)
+        rules[n] = r
+    print(sum(rules_match_string(rules, s) for s in strings) == 246)
+
 
 
 if __name__ == "__main__":
