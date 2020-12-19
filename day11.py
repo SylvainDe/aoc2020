@@ -6,7 +6,7 @@ import collections
 def string_to_seat_layout(string):
     return {
         (i, j): s
-        for i, line in enumerate(string.split("\n"))
+        for i, line in enumerate(string.splitlines())
         for j, s in enumerate(line)
     }
 

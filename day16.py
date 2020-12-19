@@ -16,9 +16,9 @@ def get_ticket_from_string(string):
 def get_info_from_string(string):
     rules, ticket, tickets = string.split("\n\n")
     return (
-        [get_rule_from_string(r) for r in rules.split("\n")],
-        get_ticket_from_string(ticket.split("\n")[1]),
-        [get_ticket_from_string(s) for s in tickets.split("\n")[1:] if s],
+        [get_rule_from_string(r) for r in rules.splitlines()],
+        get_ticket_from_string(ticket.splitlines()[1]),
+        [get_ticket_from_string(s) for s in tickets.splitlines()[1:] if s],
     )
 
 

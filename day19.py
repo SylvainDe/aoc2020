@@ -5,7 +5,7 @@ import datetime
 def get_data_from_file(file_path="day19_input.txt"):
     with open(file_path) as f:
         rules, strings = f.read().split("\n\n")
-        return get_rules_from_string(rules), strings.split("\n")
+        return get_rules_from_string(rules), strings.splitlines()
 
 
 quote = '"'
@@ -24,7 +24,7 @@ def get_rule_from_string(string):
 
 def get_rules_from_string(string):
     rules = dict()
-    for l in string.split("\n"):
+    for l in string.splitlines():
         n, r = get_rule_from_string(l)
         rules[n] = r
     return rules

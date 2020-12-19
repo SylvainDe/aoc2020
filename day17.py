@@ -6,7 +6,7 @@ import collections
 def get_2d_points_from_string(string):
     return {
         (i, j)
-        for i, l in enumerate(string.split("\n"))
+        for i, l in enumerate(string.splitlines())
         for j, c in enumerate(l)
         if c == "#"
     }
