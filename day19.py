@@ -31,22 +31,24 @@ def get_rules_from_string(string):
 
 
 def seq_match_string(rules, seq, s):
-    rems = [s]
-    for e in seq:
-        rems2 = []
-        for rem in rems:
-            rems2.extend(rule_match_string(rules, e, rem))
-        rems = rems2
-    return rems
+    if not seq:
+        yield s
+    else:
+        head, tail = seq[0], seq[1:]
+        for rem in rule_match_string(rules, head, s):
+            yield from seq_match_string(rules, tail, rem)
 
 
 def rule_match_string(rules, rule_nb, s):
     rule = rules[rule_nb]
     # Either a literal string
     if isinstance(rule, str):
-        return [s[len(rule) :]] if s.startswith(rule) else []
+        if s.startswith(rule):
+            yield s[len(rule) :]
     # Or a list of alternatives
-    return [rem for alt in rule for rem in seq_match_string(rules, alt, s)]
+    else:
+        for alt in rule:
+            yield from seq_match_string(rules, alt, s)
 
 
 def rules_match_string(rules, s):
