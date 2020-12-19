@@ -34,12 +34,13 @@ def seq_match_string(rules, seq, s):
     for e in seq:
         rems2 = []
         for rem in rems:
-            rems2.extend(rule_match_string(rules, rules[e], rem))
+            rems2.extend(rule_match_string(rules, e, rem))
         rems = rems2
     return rems
 
 
-def rule_match_string(rules, rule, s):
+def rule_match_string(rules, rule_nb, s):
+    rule = rules[rule_nb]
     # Either a literal string
     if isinstance(rule, str):
         return [s[len(rule) :]] if s.startswith(rule) else []
@@ -48,7 +49,7 @@ def rule_match_string(rules, rule, s):
 
 
 def rules_match_string(rules, s):
-    return "" in rule_match_string(rules, rules[0], s)
+    return "" in rule_match_string(rules, 0, s)
 
 
 def example1():
