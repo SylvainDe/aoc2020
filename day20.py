@@ -18,20 +18,22 @@ def get_tile_borders(content):
     )
 
 
+def rotate(matrix):
+    # https://stackoverflow.com/questions/8421337/rotating-a-two-dimensional-array-in-python
+    return list(zip(*matrix[::-1]))
+
+
 def get_rotations_and_symetries(tile):
-    a, b, c, d = tile
-    a2, b2, c2, d2 = a[::-1], b[::-1], c[::-1], d[::-1]
-    return [
-        # Rotations
-        [a, b, c, d],  # Identity
-        [b, c, d, a],  # 90°
-        [c, d, a, b],  # 180° - central symetry
-        [d, a, b, c],  # 270°
-        # Vertical flip
-        [a2, d2, c2, b2],
-        # Horizontal flip
-        [c2, b2, a2, d2],
-    ]
+    t = tile
+    yield t
+    for i in range(3):
+        t = rotate(t)
+        yield t
+    t = t[::-1]
+    yield t
+    for i in range(3):
+        t = rotate(t)
+        yield t
 
 
 def get_tile_from_string(string):
@@ -55,16 +57,14 @@ def guess_corners(tiles):
         for side in tile:
             for s in (side, side[::-1]):
                 sides.setdefault(s, []).append(n)
-    # (1, 1, X, Y) are corners
-    # (1, X, Y, Z) are sides
-    corners = []
-    for n, tile in tiles_borders.items():
-        caracterictics = tuple(sorted(len(sides[side]) for side in tile))
-        if caracterictics[0] == caracterictics[1] == 1:
-            corners.append(n)
-    if len(corners) == 4:
-        return corners
-    return None
+    unique_sides = set([s for s, lst in sides.items() if len(lst) == 1])
+    corners = [
+        n
+        for n, tile in tiles_borders.items()
+        if sum(side in unique_sides for side in tile) == 2
+    ]
+    assert len(corners) == 4
+    return corners
 
 
 def guess_image(tiles):
@@ -75,19 +75,20 @@ def guess_image(tiles):
             for s in (side, side[::-1]):
                 sides.setdefault(s, []).append(n)
 
+    unique_sides = set([s for s, lst in sides.items() if len(lst) == 1])
+
     # Determine corners and sides
-    # (1, 1, X, Y) are corners
-    # (1, X, Y, Z) are sides
     corners, borders, middles = [], [], []
     for n, tile in tiles_borders.items():
-        caracterictics = tuple(sorted(len(sides[side]) for side in tile))
-        if caracterictics[0] == 1:
-            if caracterictics[1] == 1:
-                corners.append(n)
-            else:
-                borders.append(n)
-        else:
+        nb_unique = sum(side in unique_sides for side in tile)
+        if nb_unique == 2:
+            corners.append(n)
+        elif nb_unique == 1:
+            borders.append(n)
+        elif nb_unique == 0:
             middles.append(n)
+        else:
+            assert False
 
     # Check that what we have found makes sense
     nb_tiles = len(tiles)
@@ -98,9 +99,65 @@ def guess_image(tiles):
     assert len(borders) + len(corners) == 4 * (side_len - 1)
 
     # Build image starting from a corner
-    for a, b, c, d in get_rotations_and_symetries(tiles_borders[corners[0]]):
-        if len(sides[a]) == 1 == len(sides[d]):
-            print(a, b, c, d)
+    first_line = []
+    first_line.append(
+        find_match_for_border(tiles, [corners[0]], unique_sides, unique_sides)
+    )
+    left_col = "".join(line[-1] for line in first_line[-1])
+    # Continue to build first line
+    for i in range(side_len - 2):
+        first_line.append(
+            find_match_for_border(tiles, borders, [left_col], unique_sides)
+        )
+        left_col = "".join(line[-1] for line in first_line[-1])
+    first_line.append(
+        find_match_for_border(tiles, corners, [left_col], unique_sides, unique_sides)
+    )
+
+    # Build second line
+    second_line = []
+    top_line = "".join(first_line[0][-1])
+    second_line.append(find_match_for_border(tiles, borders, unique_sides, [top_line]))
+    left_col = "".join(line[-1] for line in second_line[-1])
+    for i in range(side_len - 2):
+        top_line = "".join(first_line[i + 1][-1])
+        second_line.append(
+            find_match_for_border(tiles, middles, [left_col], [top_line])
+        )
+        left_col = "".join(line[-1] for line in second_line[-1])
+    top_line = "".join(first_line[side_len - 1][-1])
+    second_line.append(
+        find_match_for_border(tiles, borders, [left_col], [top_line], unique_sides)
+    )
+
+    # Build last line
+    third_line = []
+    top_line = "".join(second_line[0][-1])
+    third_line.append(find_match_for_border(tiles, corners, unique_sides, [top_line]))
+    left_col = "".join(line[-1] for line in third_line[-1])
+    for i in range(side_len - 2):
+        top_line = "".join(second_line[i + 1][-1])
+        third_line.append(find_match_for_border(tiles, borders, [left_col], [top_line]))
+        left_col = "".join(line[-1] for line in third_line[-1])
+    top_line = "".join(second_line[side_len - 1][-1])
+    third_line.append(
+        find_match_for_border(tiles, corners, [left_col], [top_line], unique_sides)
+    )
+
+
+def find_match_for_border(
+    tiles, candidates, left_cols, up_lines, right_cols=None, bottom_line=None
+):
+    for c in candidates:
+        for t in get_rotations_and_symetries(tiles[c]):
+            up, left = "".join(t[0]), "".join(line[0] for line in t)
+            if up in up_lines and left in left_cols:
+                # print(c)
+                if right_cols is not None:
+                    right = "".join(line[-1] for line in t)
+                    assert right in right_cols
+                return t
+    return None
 
 
 def mult(iterator):
@@ -221,12 +278,14 @@ Tile 3079:
     tiles = get_tiles_from_string(example1)
     assert mult(guess_corners(tiles)) == 20899048083289
     print(guess_image(tiles))
+    # print(list(get_rotations_and_symetries([[1, 2], [3, 4]])))
+    # print(list(get_rotations_and_symetries([[1, 2, 3], [4, 5, 6], [7, 8, 9]])))
 
 
 def get_solutions():
     tiles = get_tiles_from_file()
     print(mult(guess_corners(tiles)) == 140656720229539)
-    print(guess_image(tiles))
+    # print(guess_image(tiles))
 
 
 if __name__ == "__main__":
