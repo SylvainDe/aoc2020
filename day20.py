@@ -53,17 +53,13 @@ def guess_corners(tiles):
     sides = dict()
     for n, tile in tiles_borders.items():
         for side in tile:
-            s = min(side, side[::-1])
-            sides.setdefault(s, []).append(n)
+            for s in (side, side[::-1]):
+                sides.setdefault(s, []).append(n)
     # (1, 1, X, Y) are corners
     # (1, X, Y, Z) are sides
     corners = []
     for n, tile in tiles_borders.items():
-        caracterictics = []
-        for side in tile:
-            s = min(side, side[::-1])
-            caracterictics.append(len(sides[s]))
-        caracterictics = tuple(sorted(caracterictics))
+        caracterictics = tuple(sorted(len(sides[side]) for side in tile))
         if caracterictics[0] == caracterictics[1] == 1:
             corners.append(n)
     if len(corners) == 4:
@@ -76,19 +72,15 @@ def guess_image(tiles):
     sides = dict()
     for n, tile in tiles_borders.items():
         for side in tile:
-            s = min(side, side[::-1])
-            sides.setdefault(s, []).append(n)
+            for s in (side, side[::-1]):
+                sides.setdefault(s, []).append(n)
 
     # Determine corners and sides
     # (1, 1, X, Y) are corners
     # (1, X, Y, Z) are sides
     corners, borders, middles = [], [], []
     for n, tile in tiles_borders.items():
-        caracterictics = []
-        for side in tile:
-            s = min(side, side[::-1])
-            caracterictics.append(len(sides[s]))
-        caracterictics = tuple(sorted(caracterictics))
+        caracterictics = tuple(sorted(len(sides[side]) for side in tile))
         if caracterictics[0] == 1:
             if caracterictics[1] == 1:
                 corners.append(n)
@@ -107,11 +99,7 @@ def guess_image(tiles):
 
     # Build image starting from a corner
     for a, b, c, d in get_rotations_and_symetries(tiles_borders[corners[0]]):
-        if (
-            len(sides.get(min(a, a[::-1]), []))
-            == 1
-            == len(sides.get(min(d, d[::-1]), []))
-        ):
+        if len(sides[a]) == 1 == len(sides[d]):
             print(a, b, c, d)
 
 
