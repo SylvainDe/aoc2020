@@ -9,6 +9,7 @@ Day       Time   Rank  Score       Time   Rank  Score       Delta rank  Delta ti
 
 stats = """
  21   15:53:45  10730      0   15:58:12  10412      0
+ 20   12:44:22   9035      0       >24h   7877      0
  19   05:31:17   5888      0   08:24:36   5242      0
  18   04:00:44   7658      0   04:19:16   6330      0
  17   02:40:38   5423      0   02:48:40   4980      0
@@ -32,18 +33,23 @@ stats = """
 
 
 print(new_header)
+time_re = r"([0-9:]+|>24h)"
 stat_line_re = re.compile(
-    r"^\s+(?P<day>\d+)\s+(?P<time1>[0-9:]+)\s+(?P<rank1>\d+)\s+(?P<score1>\d+)\s+(?P<time2>[0-9:]+)\s+(?P<rank2>\d+)\s+(?P<score2>\d+)$"
+    r"^\s+(?P<day>\d+)\s+(?P<time1>%s)\s+(?P<rank1>\d+)\s+(?P<score1>\d+)\s+(?P<time2>%s)\s+(?P<rank2>\d+)\s+(?P<score2>\d+)$" % (time_re, time_re)
 )
 time_format = "%H:%M:%S"
 for line in stats.split("\n"):
     if line:
         m = stat_line_re.match(line)
         d = m.groupdict()
-        time1 = datetime.datetime.strptime(d["time1"], time_format)
-        time2 = datetime.datetime.strptime(d["time2"], time_format)
         rank1 = int(d["rank1"])
         rank2 = int(d["rank2"])
+        dtime1 = d["time1"]
+        dtime2 = d["time2"]
+        if dtime2 == ">24h":
+            dtime2 = "23:59:59"
+        time1 = datetime.datetime.strptime(dtime1, time_format)
+        time2 = datetime.datetime.strptime(dtime2, time_format)
         delta_rank = rank1 - rank2
         delta_time = time2 - time1
         print("{}       {:5d}        {}".format(line, delta_rank, delta_time))
