@@ -12,7 +12,7 @@ def get_ingredients_from_file(file_path="day21_input.txt"):
         return [get_ingredients_from_line(l.strip()) for l in f]
 
 
-def find_safe_ingredient(ingredients):
+def identify_ingredients(ingredients):
     identified_ingredients = dict()
     identified_alergens = dict()
     change = True
@@ -32,9 +32,19 @@ def find_safe_ingredient(ingredients):
                 identified_ingredients[i] = a
                 identified_alergens[a] = i
                 change = True
+    return identified_ingredients, identified_alergens
+
+
+def get_nb_safe_ingredients(ingredients):
+    identified_ingredients, _ = identify_ingredients(ingredients)
     return sum(
         i not in identified_ingredients for ingred, _ in ingredients for i in ingred
     )
+
+
+def get_canonical_dangerous_list(ingredients):
+    _, identified_alergens = identify_ingredients(ingredients)
+    return ",".join(ing for al, ing in sorted(identified_alergens.items()))
 
 
 def run_tests():
@@ -45,12 +55,17 @@ def run_tests():
         "sqjhc mxmxvkd sbzzf (contains fish)",
     ]
     ingredients = [get_ingredients_from_line(l) for l in example1]
-    assert find_safe_ingredient(ingredients) == 5
+    assert get_nb_safe_ingredients(ingredients) == 5
+    assert get_canonical_dangerous_list(ingredients) == "mxmxvkd,sqjhc,fvjkl"
 
 
 def get_solutions():
     ingredients = get_ingredients_from_file()
-    print(find_safe_ingredient(ingredients) == 2317)
+    print(get_nb_safe_ingredients(ingredients) == 2317)
+    print(
+        get_canonical_dangerous_list(ingredients)
+        == "kbdgs,sqvv,slkfgq,vgnj,brdd,tpd,csfmb,lrnz"
+    )
 
 
 if __name__ == "__main__":
