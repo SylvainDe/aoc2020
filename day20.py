@@ -8,13 +8,28 @@ def get_tiles_from_file(file_path="day20_input.txt"):
         return get_tiles_from_string(f.read())
 
 
-def get_tile_borders(content):
-    # The outside of the tile determines how it's used
+def top(tile):
+    return "".join(tile[0])
+
+
+def bottom(tile):
+    return "".join(tile[-1])
+
+
+def left(tile):
+    return "".join(line[0] for line in tile)
+
+
+def right(tile):
+    return "".join(line[-1] for line in tile)
+
+
+def get_tile_borders(tile):
     return (
-        content[0],
-        "".join(line[-1] for line in content),
-        content[-1][::-1],
-        "".join(line[0] for line in content)[::-1],
+        top(tile),
+        right(tile),
+        bottom(tile),
+        left(tile),
     )
 
 
@@ -99,65 +114,68 @@ def guess_image(tiles):
     assert len(borders) + len(corners) == 4 * (side_len - 1)
 
     # Build image starting from a corner
-    first_line = []
-    first_line.append(
-        find_match_for_border(tiles, [corners[0]], unique_sides, unique_sides)
-    )
-    left_col = "".join(line[-1] for line in first_line[-1])
-    # Continue to build first line
-    for i in range(side_len - 2):
-        first_line.append(
-            find_match_for_border(tiles, borders, [left_col], unique_sides)
-        )
-        left_col = "".join(line[-1] for line in first_line[-1])
-    first_line.append(
-        find_match_for_border(tiles, corners, [left_col], unique_sides, unique_sides)
-    )
+    remaining_id = set(tiles)
+    image = []
+    for i in range(side_len):
+        curr_line = []
+        for j in range(side_len):
+            n, tile = find_match_for_border(
+                tiles,
+                remaining_id if (i, j) != (0, 0) else [corners[0]],
+                [right(curr_line[-1])] if j else unique_sides,
+                [bottom(image[-1][j])] if i else unique_sides,
+            )
+            remaining_id.remove(n)
+            curr_line.append(tile)
+        image.append(curr_line)
+    assert not remaining_id
+    assert sum(len(line) for line in image) == nb_tiles
 
-    # Build second line
-    second_line = []
-    top_line = "".join(first_line[0][-1])
-    second_line.append(find_match_for_border(tiles, borders, unique_sides, [top_line]))
-    left_col = "".join(line[-1] for line in second_line[-1])
-    for i in range(side_len - 2):
-        top_line = "".join(first_line[i + 1][-1])
-        second_line.append(
-            find_match_for_border(tiles, middles, [left_col], [top_line])
-        )
-        left_col = "".join(line[-1] for line in second_line[-1])
-    top_line = "".join(first_line[side_len - 1][-1])
-    second_line.append(
-        find_match_for_border(tiles, borders, [left_col], [top_line], unique_sides)
-    )
-
-    # Build last line
-    third_line = []
-    top_line = "".join(second_line[0][-1])
-    third_line.append(find_match_for_border(tiles, corners, unique_sides, [top_line]))
-    left_col = "".join(line[-1] for line in third_line[-1])
-    for i in range(side_len - 2):
-        top_line = "".join(second_line[i + 1][-1])
-        third_line.append(find_match_for_border(tiles, borders, [left_col], [top_line]))
-        left_col = "".join(line[-1] for line in third_line[-1])
-    top_line = "".join(second_line[side_len - 1][-1])
-    third_line.append(
-        find_match_for_border(tiles, corners, [left_col], [top_line], unique_sides)
-    )
+    return stitch_image(image)
 
 
-def find_match_for_border(
-    tiles, candidates, left_cols, up_lines, right_cols=None, bottom_line=None
-):
-    for c in candidates:
-        for t in get_rotations_and_symetries(tiles[c]):
-            up, left = "".join(t[0]), "".join(line[0] for line in t)
-            if up in up_lines and left in left_cols:
-                # print(c)
-                if right_cols is not None:
-                    right = "".join(line[-1] for line in t)
-                    assert right in right_cols
-                return t
-    return None
+def stitch_image(tiles):
+    img = []
+    for tile_line in tiles:
+        line_no_border = [remove_borders(tile) for tile in tile_line]
+        for i in range(len(line_no_border[0])):
+            img.append("".join(t[i] for t in line_no_border))
+    return img
+
+
+def remove_borders(tile):
+    return ["".join(line[1:-1]) for line in tile[1:-1]]
+
+
+def find_match_for_border(tiles, candidates, lefts, ups):
+    found = [
+        (c, t)
+        for c in candidates
+        for t in get_rotations_and_symetries(tiles[c])
+        if top(t) in ups and left(t) in lefts
+    ]
+    assert len(found) in (1, 2)
+    assert len(set(f[0] for f in found)) == 1
+    return found[0]
+
+
+def get_caracter_positions(matrix, char):
+    return set(
+        (i, j) for i, line in enumerate(matrix) for j, c in enumerate(line) if c == char
+    )
+
+
+def water_roughness(monster, image):
+    water_hashes = get_caracter_positions(image, "#")
+    found_hashes = set()
+    for m in get_rotations_and_symetries(monster):
+        monster_hashes = get_caracter_positions(m, "#")
+        for i in range(len(image)):
+            for j in range(len(image)):
+                positions = [(mx + i, my + j) for mx, my in monster_hashes]
+                if all(pos in water_hashes for pos in positions):
+                    found_hashes.update(positions)
+    return len(water_hashes) - len(found_hashes)
 
 
 def mult(iterator):
@@ -167,7 +185,34 @@ def mult(iterator):
     return m
 
 
+monster = ["                  # ", "#    ##    ##    ###", " #  #  #  #  #  #   "]
+
+
+def test_get_rotations_and_symetries():
+    assert list(get_rotations_and_symetries([[1, 2], [3, 4]])) == [
+        [[1, 2], [3, 4]],
+        [(3, 1), (4, 2)],
+        [(4, 3), (2, 1)],
+        [(2, 4), (1, 3)],
+        [(1, 3), (2, 4)],
+        [(2, 1), (4, 3)],
+        [(4, 2), (3, 1)],
+        [(3, 4), (1, 2)],
+    ]
+    assert list(get_rotations_and_symetries([[1, 2, 3], [4, 5, 6], [7, 8, 9]])) == [
+        [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+        [(7, 4, 1), (8, 5, 2), (9, 6, 3)],
+        [(9, 8, 7), (6, 5, 4), (3, 2, 1)],
+        [(3, 6, 9), (2, 5, 8), (1, 4, 7)],
+        [(1, 4, 7), (2, 5, 8), (3, 6, 9)],
+        [(3, 2, 1), (6, 5, 4), (9, 8, 7)],
+        [(9, 6, 3), (8, 5, 2), (7, 4, 1)],
+        [(7, 8, 9), (4, 5, 6), (1, 2, 3)],
+    ]
+
+
 def run_tests():
+    test_get_rotations_and_symetries()
     example1 = """Tile 2311:
 ..##.#..#.
 ##..#.....
@@ -277,15 +322,41 @@ Tile 3079:
 ..#.###..."""
     tiles = get_tiles_from_string(example1)
     assert mult(guess_corners(tiles)) == 20899048083289
-    print(guess_image(tiles))
-    # print(list(get_rotations_and_symetries([[1, 2], [3, 4]])))
-    # print(list(get_rotations_and_symetries([[1, 2, 3], [4, 5, 6], [7, 8, 9]])))
+    image1 = """.#.#..#.##...#.##..#####
+###....#.#....#..#......
+##.##.###.#.#..######...
+###.#####...#.#####.#..#
+##.#....#.##.####...#.##
+...########.#....#####.#
+....#..#...##..#.#.###..
+.####...#..#.....#......
+#..#.##..#..###.#.##....
+#.####..#.####.#.#.###..
+###.#.#...#.######.#..##
+#.####....##..########.#
+##..##.#...#...#.#.#.#..
+...#..#..#.#.##..###.###
+.#.#....#.##.#...###.##.
+###.#...#..#.##.######..
+.#.#.###.##.##.#..#.##..
+.####.###.#...###.#..#.#
+..#.#..#..#.#.#.####.###
+#..####...#.#.#.###.###.
+#####..#####...###....##
+#.##..#..#...#..####...#
+.#.###..##..##..####.##.
+...###...##...#...#..###""".splitlines()
+    image1_rot = list("".join(l) for l in zip(*image1))
+    assert guess_image(tiles) in (image1, image1_rot)
+    assert water_roughness(monster, image1) == 273
+    assert water_roughness(monster, image1_rot) == 273
 
 
 def get_solutions():
     tiles = get_tiles_from_file()
     print(mult(guess_corners(tiles)) == 140656720229539)
-    # print(guess_image(tiles))
+    image = guess_image(tiles)
+    print(water_roughness(monster, image) == 1885)
 
 
 if __name__ == "__main__":
