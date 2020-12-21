@@ -12,39 +12,39 @@ def get_ingredients_from_file(file_path="day21_input.txt"):
         return [get_ingredients_from_line(l.strip()) for l in f]
 
 
-def identify_ingredients(ingredients):
-    identified_ingredients = dict()
-    identified_alergens = dict()
+def identify_allergens(ingredients):
+    allergen_sources = dict()
+    for ingred, allergens in ingredients:
+        for aller in allergens:
+            allergen_sources.setdefault(aller, []).append(ingred)
+    allergen_cand = {
+        aller: set.intersection(*[set(l) for l in meta_list])
+        for aller, meta_list in allergen_sources.items()
+    }
+    ident_ingred = dict()
     change = True
     while change:
         change = False
-        alergen_sources = dict()
-        for ingred, alergens in ingredients:
-            for a in alergens:
-                if a not in identified_alergens:
-                    alergen_sources.setdefault(a, []).append(
-                        tuple(i for i in ingred if i not in identified_ingredients)
-                    )
-        for a, meta_list in alergen_sources.items():
-            cand = set.intersection(*[set(l) for l in meta_list])
-            if len(cand) == 1:
-                i = cand.pop()
-                identified_ingredients[i] = a
-                identified_alergens[a] = i
+        for aller, cand in list(allergen_cand.items()):
+            candidates = cand - set(ident_ingred)
+            assert candidates
+            if len(candidates) == 1:
+                ident_ingred[candidates.pop()] = aller
+                allergen_cand.pop(aller)
                 change = True
-    return identified_ingredients, identified_alergens
+    if allergen_cand:
+        print("Not all allergens have been identified")
+    return ident_ingred
 
 
 def get_nb_safe_ingredients(ingredients):
-    identified_ingredients, _ = identify_ingredients(ingredients)
-    return sum(
-        i not in identified_ingredients for ingred, _ in ingredients for i in ingred
-    )
+    ident_ingred = identify_allergens(ingredients)
+    return sum(i not in ident_ingred for ingred, _ in ingredients for i in ingred)
 
 
 def get_canonical_dangerous_list(ingredients):
-    _, identified_alergens = identify_ingredients(ingredients)
-    return ",".join(ing for al, ing in sorted(identified_alergens.items()))
+    ident_ingred = identify_allergens(ingredients)
+    return ",".join(sorted(ident_ingred, key=ident_ingred.get))
 
 
 def run_tests():
