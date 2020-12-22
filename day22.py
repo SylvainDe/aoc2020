@@ -16,24 +16,21 @@ def play_game(deck1, deck2):
     while deck1 and deck2:
         c1, c2 = deck1.pop(0), deck2.pop(0)
         if c1 > c2:
-            deck1.append(c1)
-            deck1.append(c2)
+            deck1.extend([c1, c2])
         elif c2 > c1:
-            deck2.append(c2)
-            deck2.append(c1)
+            deck2.extend([c2, c1])
         else:
             assert False
     return get_score_for_final_setup((deck1, deck2))
 
 
 def play_recursive_game(deck1, deck2):
-    deck1, deck2 = list(deck1), list(deck2)
-    deck_configs_seen = set()
+    seen = set()
     while deck1 and deck2:
         deck_config = tuple(deck1 + [None] + deck2)
-        if deck_config in deck_configs_seen:
+        if deck_config in seen:
             return deck1, []
-        deck_configs_seen.add(deck_config)
+        seen.add(deck_config)
         c1, c2 = deck1.pop(0), deck2.pop(0)
         if c1 <= len(deck1) and c2 <= len(deck2):
             subd1, subd2 = play_recursive_game(deck1[:c1], deck2[:c2])
@@ -42,11 +39,9 @@ def play_recursive_game(deck1, deck2):
         else:
             winner_is_1 = c1 > c2
         if winner_is_1:
-            winner_deck, winner_card, loser_card = deck1, c1, c2
+            deck1.extend([c1, c2])
         else:
-            winner_deck, winner_card, loser_card = deck2, c2, c1
-        winner_deck.append(winner_card)
-        winner_deck.append(loser_card)
+            deck2.extend([c2, c1])
     return deck1, deck2
 
 
