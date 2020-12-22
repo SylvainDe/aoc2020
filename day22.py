@@ -26,35 +26,27 @@ def play_game(deck1, deck2):
     return get_score_for_final_setup((deck1, deck2))
 
 
-def play_recursive_game(deck1, deck2, depth=0):
-    # print(depth, len(deck1 + deck2))
+def play_recursive_game(deck1, deck2):
     deck1, deck2 = list(deck1), list(deck2)
     deck_configs_seen = set()
     while deck1 and deck2:
-        # print("Begin", depth, deck1, deck2)
         deck_config = tuple(deck1 + [None] + deck2)
         if deck_config in deck_configs_seen:
-            # print("Deck already seen", depth, deck1, deck2)
             return deck1, []
         deck_configs_seen.add(deck_config)
         c1, c2 = deck1.pop(0), deck2.pop(0)
         if c1 <= len(deck1) and c2 <= len(deck2):
-            subd1, subd2 = play_recursive_game(list(deck1), list(deck2), depth + 1)
-            if subd1:
-                winner = 1
-            elif subd2:
-                winner = 2
-            else:
-                assert False
+            subd1, subd2 = play_recursive_game(deck1[:c1], deck2[:c2])
+            assert bool(subd1) + bool(subd2) == 1
+            winner_is_1 = bool(subd1)
         else:
-            winner = 1 if c1 > c2 else 2
-        if winner == 1:
+            winner_is_1 = c1 > c2
+        if winner_is_1:
             winner_deck, winner_card, loser_card = deck1, c1, c2
         else:
             winner_deck, winner_card, loser_card = deck2, c2, c1
         winner_deck.append(winner_card)
         winner_deck.append(loser_card)
-    # print("Deck empty", depth, deck1, deck2)
     return deck1, deck2
 
 
@@ -79,7 +71,7 @@ Player 2:
 10"""
     deck1, deck2 = get_decks_from_string(example1)
     assert play_game(deck1, deck2) == 306
-    print(get_score_for_final_setup(play_recursive_game(deck1, deck2)))
+    assert get_score_for_final_setup(play_recursive_game(deck1, deck2)) == 291
     example2 = """Player 1:
 43
 19
@@ -89,13 +81,13 @@ Player 2:
 29
 14"""
     deck1, deck2 = get_decks_from_string(example2)
-    print(play_recursive_game(deck1, deck2))
+    assert get_score_for_final_setup(play_recursive_game(deck1, deck2)) == 105
 
 
 def get_solutions():
     deck1, deck2 = get_decks_from_file()
     print(play_game(deck1, deck2) == 35397)
-    print(get_score_for_final_setup(play_recursive_game(deck1, deck2)))  # does not terminate ?
+    print(get_score_for_final_setup(play_recursive_game(deck1, deck2)) == 31120)
 
 
 if __name__ == "__main__":
