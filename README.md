@@ -41,3 +41,5 @@ https://adventofcode.com/2020/day/19 : 2/2
 https://adventofcode.com/2020/day/20 : 2/2
 
 https://adventofcode.com/2020/day/21 : 2/2
+
+https://adventofcode.com/2020/day/22 : 0/2
