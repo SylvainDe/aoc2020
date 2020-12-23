@@ -7,42 +7,79 @@ def get_cups_from_file(file_path="day23_input.txt"):
         for l in f:
             return [int(c) for c in l.strip()]
 
-def perform_move(cups):
+
+def init_linked_dict(lst):
+    beg = lst[0]
+    linked_dict = dict(zip(lst, lst[1:] + [beg]))
+    return beg, linked_dict
+
+
+def remove_from_linked_dict(linked_dict, rm_after):
+    removed = linked_dict[rm_after]
+    linked_dict[rm_after] = linked_dict.pop(removed)
+    return removed
+
+
+def insert_in_linked_dict(linked_dict, insert_after, value):
+    after = linked_dict[insert_after]
+    linked_dict[insert_after] = value
+    linked_dict[value] = after
+
+
+def perform_move_with_linked_dict(cup_dict, curr):
+    min_cup, max_cup = 1, len(cup_dict)
     nb_removed = 3
-    curr = cups[0]
-    removed, remain = cups[1:nb_removed+1], [curr] + cups[nb_removed+1:]
-    smaller_cup = [(c, pos) for pos, c in enumerate(remain) if c < curr]
-    if smaller_cup:
-        dest, dest_pos = max(smaller_cup)
-    else:
-        dest, dest_pos = max((c, pos) for pos, c in enumerate(remain))
-    lst = remain[:dest_pos+1] + removed  + remain[1+dest_pos:]
-    curr_idx = lst.index(curr)
-    ret = lst[curr_idx+1:] + lst[:curr_idx+1]
-    return ret
+    removed = []
+    for i in range(nb_removed):
+        removed.append(remove_from_linked_dict(cup_dict, curr))
+    dest = curr - 1
+    while dest not in cup_dict:
+        if dest < min_cup:
+            dest = max_cup
+        else:
+            dest -= 1
+    for c in reversed(removed):
+        insert_in_linked_dict(cup_dict, dest, c)
+    return cup_dict, cup_dict[curr]
+
 
 def perform_moves(cups, nb):
+    curr, cup_dict = init_linked_dict(cups)
     for i in range(nb):
-        cups = perform_move(cups)
-    idx = cups.index(1)
-    labels = cups[idx+1:] + cups[:idx]
-    return int("".join(str(c) for c in labels))
+        cup_dict, curr = perform_move_with_linked_dict(cup_dict, curr)
+    return cup_dict
+
+
+def day1(cups, nb=100):
+    cup_dict = perform_moves(cups, nb)
+    ret = []
+    curr = 1
+    while cup_dict[curr] != 1:
+        curr = cup_dict[curr]
+        ret.append(curr)
+    return int("".join(str(c) for c in ret))
+
+
+def day2(cups, nb_cups=1000000, nb_iter=10000000):
+    all_cups = cups + list(range(max(cups) + 1, nb_cups + 1))
+    cup_dict = perform_moves(all_cups, nb_iter)
+    n1 = cup_dict[1]
+    n2 = cup_dict[n1]
+    return n1 * n2
+
 
 def run_tests():
     example1 = "389125467"
     cups = [int(c) for c in example1]
-    # print(cups == [3, 8, 9, 1, 2, 5, 4, 6, 7])
-    # cups = perform_move(cups)
-    # print(cups == [2, 8, 9, 1, 5, 4, 6, 7, 3])
-    # cups = perform_move(cups)
-    # print(cups == [5, 4, 6, 7, 8, 9, 1, 3, 2])
-    # cups = [int(c) for c in example1]
-    print(perform_moves(cups, 10) == 92658374)
-    print(perform_moves(cups, 100) == 67384529)
+    assert day1(cups, 10) == 92658374
+    assert day1(cups) == 67384529
+    assert day2(cups) == 149245887792
+
 
 def get_solutions():
     cups = get_cups_from_file()
-    print(perform_moves(cups, 100) == 96342875)
+    print(day1(cups) == 96342875)
+    print(day2(cups) == 563362809504)
 
 
 if __name__ == "__main__":
