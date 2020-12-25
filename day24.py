@@ -9,7 +9,7 @@ def get_directions_from_file(file_path="day24_input.txt"):
 
 
 def sum_elementwise(it1, it2):
-    return [sum(x) for x in zip(it1, it2)]
+    return tuple(sum(x) for x in zip(it1, it2))
 
 
 # https://www.redblobgames.com/grids/hexagons/#coordinates
@@ -44,9 +44,26 @@ def get_tile_from_direction_string(s):
     return tuple(sum(x) for x in zip(*dirs))
 
 
-def get_nb_tiles_flipped(strings):
+def get_tiles_flipped(strings):
     c = collections.Counter(get_tile_from_direction_string(s) for s in strings)
-    return sum(count % 2 for count in c.values())
+    return set(tile for tile, count in c.items() if count % 2)
+
+
+def one_day(tiles):
+    c = collections.Counter(
+        sum_elementwise(t, n) for t in tiles for n in DIRECTIONS.values()
+    )
+    return set(
+        tile
+        for tile, count in c.items()
+        if count in ((1, 2) if tile in tiles else (2,))
+    )
+
+
+def n_days(tiles, n):
+    for _ in range(n):
+        tiles = one_day(tiles)
+    return len(tiles)
 
 
 def run_tests():
@@ -74,12 +91,16 @@ def run_tests():
         "neswnwewnwnwseenwseesewsenwsweewe",
         "wseweeenwnesenwwwswnew",
     ]
-    assert get_nb_tiles_flipped(example1) == 10
+    tiles = get_tiles_flipped(example1)
+    assert len(tiles) == 10
+    assert n_days(tiles, 100) == 2208
 
 
 def get_solutions():
     directions = get_directions_from_file()
-    print(get_nb_tiles_flipped(directions) == 282)
+    tiles = get_tiles_flipped(directions)
+    print(len(tiles) == 282)
+    print(n_days(tiles, 100) == 3445)
 
 
 if __name__ == "__main__":
