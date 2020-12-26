@@ -1,6 +1,9 @@
 # vi: set shiftwidth=4 tabstop=4 expandtab:
+import datetime
 import itertools
 import collections
+
+RUN_LONG_TESTS = False
 
 
 def string_to_seat_layout(string):
@@ -142,9 +145,14 @@ LLLLLLLLL#
 def get_solutions():
     seat_layout = get_seat_layout_from_file()
     print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seats1) == 2204)
-    print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seats2) == 1986)
+    if RUN_LONG_TESTS:
+        print(get_nb_seat_on_fixedpoint(seat_layout, get_new_seats2) == 1986)
 
 
 if __name__ == "__main__":
+    RUN_LONG_TESTS = True
+    begin = datetime.datetime.now()
     run_tests()
     get_solutions()
+    end = datetime.datetime.now()
+    print(end - begin)

@@ -38,7 +38,8 @@ stats = """
 print(new_header)
 time_re = r"([0-9:]+|>24h)"
 stat_line_re = re.compile(
-    r"^\s+(?P<day>\d+)\s+(?P<time1>%s)\s+(?P<rank1>\d+)\s+(?P<score1>\d+)\s+(?P<time2>%s)\s+(?P<rank2>\d+)\s+(?P<score2>\d+)$" % (time_re, time_re)
+    r"^\s+(?P<day>\d+)\s+(?P<time1>%s)\s+(?P<rank1>\d+)\s+(?P<score1>\d+)\s+(?P<time2>%s)\s+(?P<rank2>\d+)\s+(?P<score2>\d+)$"
+    % (time_re, time_re)
 )
 time_format = "%H:%M:%S"
 for line in stats.split("\n"):

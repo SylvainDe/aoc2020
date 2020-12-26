@@ -2,6 +2,8 @@
 import datetime
 import itertools
 
+RUN_LONG_TESTS = False
+
 
 def get_public_keys_from_file(file_path="day25_input.txt"):
     with open(file_path) as f:
@@ -39,13 +41,15 @@ def run_tests():
 
 def get_solutions():
     pk1, pk2 = get_public_keys_from_file()
-    ls1 = find_loop_size(7, pk1)
-    ls2 = find_loop_size(7, pk2)
-    print(transform(pk1, ls2) == 7269858)
-    print(transform(pk2, ls1) == 7269858)
+    if RUN_LONG_TESTS:
+        ls1 = find_loop_size(7, pk1)
+        ls2 = find_loop_size(7, pk2)
+        print(transform(pk1, ls2) == 7269858)
+        print(transform(pk2, ls1) == 7269858)
 
 
 if __name__ == "__main__":
+    RUN_LONG_TESTS = True
     begin = datetime.datetime.now()
     run_tests()
     get_solutions()

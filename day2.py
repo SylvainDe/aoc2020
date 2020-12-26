@@ -1,5 +1,7 @@
 # vi: set shiftwidth=4 tabstop=4 expandtab:
+import datetime
 import re
+
 
 LINE_RE = re.compile(r"(?P<mini>\d+)-(?P<maxi>\d+) (?P<letter>.): (?P<pwd>.*)")
 
@@ -46,5 +48,8 @@ def get_solutions():
 
 
 if __name__ == "__main__":
+    begin = datetime.datetime.now()
     run_tests()
     get_solutions()
+    end = datetime.datetime.now()
+    print(end - begin)

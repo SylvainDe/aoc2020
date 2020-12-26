@@ -2,6 +2,9 @@
 import datetime
 
 
+RUN_LONG_TESTS = False
+
+
 def get_cups_from_file(file_path="day23_input.txt"):
     with open(file_path) as f:
         for l in f:
@@ -73,16 +76,19 @@ def run_tests():
     cups = [int(c) for c in example1]
     assert day1(cups, 10) == 92658374
     assert day1(cups) == 67384529
-    assert day2(cups) == 149245887792
+    if RUN_LONG_TESTS:
+        assert day2(cups) == 149245887792
 
 
 def get_solutions():
     cups = get_cups_from_file()
     print(day1(cups) == 96342875)
-    print(day2(cups) == 563362809504)
+    if RUN_LONG_TESTS:
+        print(day2(cups) == 563362809504)
 
 
 if __name__ == "__main__":
+    RUN_LONG_TESTS = True
     begin = datetime.datetime.now()
     run_tests()
     get_solutions()

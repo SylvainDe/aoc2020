@@ -1,4 +1,5 @@
 # vi: set shiftwidth=4 tabstop=4 expandtab:
+import datetime
 
 
 def get_seat_ids_from_file(file_path="day5_input.txt"):
@@ -34,5 +35,8 @@ def get_solutions():
 
 
 if __name__ == "__main__":
+    begin = datetime.datetime.now()
     run_tests()
     get_solutions()
+    end = datetime.datetime.now()
+    print(end - begin)
